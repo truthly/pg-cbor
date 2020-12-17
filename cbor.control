@@ -1,0 +1,5 @@
+comment = 'CBOR to JSON decoder'
+default_version = '1.0'
+relocatable = false
+schema = cbor
+superuser = false
