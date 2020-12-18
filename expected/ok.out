@@ -1,19 +1,514 @@
+--
+-- https://tools.ietf.org/html/rfc7049#appendix-A
+--
 BEGIN;
 CREATE EXTENSION IF NOT EXISTS cbor;
-\a
-\t
-SELECT jsonb_pretty(cbor.to_jsonb('\xa363666d74667061636b65646761747453746d74a363616c67266373696758473045022014cc1a5a5bd2d388ed1c653f4002ec49fb026b8ac8b7f7cd53aa776f14803d50022100a25a691226c8f23cc515c502874243faae4b1d0db0578bcb905337a2ee08883263783563815902c1308202bd308201a5a00302010202040a640d98300d06092a864886f70d01010b0500302e312c302a0603550403132359756269636f2055324620526f6f742043412053657269616c203435373230303633313020170d3134303830313030303030305a180f32303530303930343030303030305a306e310b300906035504061302534531123010060355040a0c0959756269636f20414231223020060355040b0c1941757468656e74696361746f72204174746573746174696f6e3127302506035504030c1e59756269636f205532462045452053657269616c203137343332393234303059301306072a8648ce3d020106082a8648ce3d03010703420004a116756eb4f0c7444aaf7d2ea10d11c8f02f492c57e36e050aa17f7c5a30760aa0ef9879203c09c90c96a7e538f607693dcf8f62f09386051bee175964fb631da36c306a302206092b0601040182c40a020415312e332e362e312e342e312e34313438322e312e373013060b2b0601040182e51c0201010404030202243021060b2b0601040182e51c01010404120410c5ef55ffad9a4b9fb580adebafe026d0300c0603551d130101ff04023000300d06092a864886f70d01010b050003820101002d4586276149cbf09483852a5f1db6b816faa0d238062ae78ba33bcaf5aafadbe1c2a79c9e7a5cb5f03e3ac8d6c09ae65968f077690bf0ea29283ab9f11bbc9467def8fa226bfa0893baaaa355b4c2f052d2c8deca598a17db0108f6aef014990a87d5d77971b5be8fd478e62cc0bb964e4b879c0a7b37fa07bc93512b12d0d007f85fa067b7a4173db45fae0bef1e86e234a1d7bd970be72dfed390af1e3703597af11edaeb2f157a99368a033d2517e0b58711386ee74a323c800beacc54e42b22a3b8868e775f48b2a3dedab0ce1ae8dc2b71df891e7832106b1a43f197e838e15a1b51e0f2a23da487c50b280506360bc1d827adf832fbf9a20e8e143a9068617574684461746158c449960de5880e8c687434170f6476605b8fe4aeb9a28632c7995cf3ba831d97634500000002c5ef55ffad9a4b9fb580adebafe026d000400f174cf2beb2b3ffd81efa7ea2638581f018ce5e76f634d845fb7346636107f1ea0deb27bdef98cbda24e33cc7cf8344bbb020c5248c985f3c5ba6e169aecb2ca5010203262001215820921c4f63a5df7ad59efb3e90293160885b3e5e30b3182dc85c017772d8fbb015225820503b48f47867d471b2cd73fa9a7214f8a876abdaa0187ac3bc3bd384987f40af'::bytea));
-[
-    {
-        "fmt": "packed",
-        "attStmt": {
-            "alg": -7,
-            "sig": "MEUCIBTMGlpb0tOI7RxlP0AC7En7AmuKyLf3zVOqd28UgD1QAiEAolppEibI8jzFFcUCh0JD+q5L\nHQ2wV4vLkFM3ou4IiDI=",
-            "x5c": [
-                "MIICvTCCAaWgAwIBAgIECmQNmDANBgkqhkiG9w0BAQsFADAuMSwwKgYDVQQDEyNZdWJpY28gVTJG\nIFJvb3QgQ0EgU2VyaWFsIDQ1NzIwMDYzMTAgFw0xNDA4MDEwMDAwMDBaGA8yMDUwMDkwNDAwMDAw\nMFowbjELMAkGA1UEBhMCU0UxEjAQBgNVBAoMCVl1YmljbyBBQjEiMCAGA1UECwwZQXV0aGVudGlj\nYXRvciBBdHRlc3RhdGlvbjEnMCUGA1UEAwweWXViaWNvIFUyRiBFRSBTZXJpYWwgMTc0MzI5MjQw\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEoRZ1brTwx0RKr30uoQ0RyPAvSSxX424FCqF/fFow\ndgqg75h5IDwJyQyWp+U49gdpPc+PYvCThgUb7hdZZPtjHaNsMGowIgYJKwYBBAGCxAoCBBUxLjMu\nNi4xLjQuMS40MTQ4Mi4xLjcwEwYLKwYBBAGC5RwCAQEEBAMCAiQwIQYLKwYBBAGC5RwBAQQEEgQQ\nxe9V/62aS5+1gK3rr+Am0DAMBgNVHRMBAf8EAjAAMA0GCSqGSIb3DQEBCwUAA4IBAQAtRYYnYUnL\n8JSDhSpfHba4Fvqg0jgGKueLozvK9ar62+HCp5yeely18D46yNbAmuZZaPB3aQvw6ikoOrnxG7yU\nZ974+iJr+giTuqqjVbTC8FLSyN7KWYoX2wEI9q7wFJkKh9XXeXG1vo/UeOYswLuWTkuHnAp7N/oH\nvJNRKxLQ0Af4X6Bnt6QXPbRfrgvvHobiNKHXvZcL5y3+05CvHjcDWXrxHtrrLxV6mTaKAz0lF+C1\nhxE4budKMjyAC+rMVOQrIqO4ho53X0iyo97asM4a6Nwrcd+JHngyEGsaQ/GX6DjhWhtR4PKiPaSH\nxQsoBQY2C8HYJ634Mvv5og6OFDqQ"
-            ]
-        },
-        "authData": "SZYN5YgOjGh0NBcPZHZgW4/krrmihjLHmVzzuoMdl2NFAAAAAsXvVf+tmkuftYCt66/gJtAAQA8X\nTPK+srP/2B76fqJjhYHwGM5edvY02EX7c0ZjYQfx6g3rJ73vmMvaJOM8x8+DRLuwIMUkjJhfPFum\n4WmuyyylAQIDJiABIVggkhxPY6XfetWe+z6QKTFgiFs+XjCzGC3IXAF3ctj7sBUiWCBQO0j0eGfU\ncbLNc/qachT4qHar2qAYesO8O9OEmH9Arw=="
-    }
-]
+SELECT cbor.to_jsonb('\x00');
+ to_jsonb 
+----------
+ [0]
+(1 row)
+
+SELECT cbor.to_jsonb('\x01');
+ to_jsonb 
+----------
+ [1]
+(1 row)
+
+SELECT cbor.to_jsonb('\x0a');
+ to_jsonb 
+----------
+ [10]
+(1 row)
+
+SELECT cbor.to_jsonb('\x17');
+ to_jsonb 
+----------
+ [23]
+(1 row)
+
+SELECT cbor.to_jsonb('\x1818');
+ to_jsonb 
+----------
+ [24]
+(1 row)
+
+SELECT cbor.to_jsonb('\x1819');
+ to_jsonb 
+----------
+ [25]
+(1 row)
+
+SELECT cbor.to_jsonb('\x1864');
+ to_jsonb 
+----------
+ [100]
+(1 row)
+
+SELECT cbor.to_jsonb('\x1903e8');
+ to_jsonb 
+----------
+ [1000]
+(1 row)
+
+SELECT cbor.to_jsonb('\x1a000f4240');
+ to_jsonb  
+-----------
+ [1000000]
+(1 row)
+
+SELECT cbor.to_jsonb('\x1b000000e8d4a51000');
+    to_jsonb     
+-----------------
+ [1000000000000]
+(1 row)
+
+SELECT cbor.to_jsonb('\x1bffffffffffffffff');
+        to_jsonb        
+------------------------
+ [18446744073709551615]
+(1 row)
+
+SELECT cbor.to_jsonb('\xc249010000000000000000');
+        to_jsonb        
+------------------------
+ [18446744073709551616]
+(1 row)
+
+SELECT cbor.to_jsonb('\x3bffffffffffffffff');
+        to_jsonb         
+-------------------------
+ [-18446744073709551616]
+(1 row)
+
+SELECT cbor.to_jsonb('\xc349010000000000000000');
+        to_jsonb         
+-------------------------
+ [-18446744073709551617]
+(1 row)
+
+SELECT cbor.to_jsonb('\x20');
+ to_jsonb 
+----------
+ [-1]
+(1 row)
+
+SELECT cbor.to_jsonb('\x29');
+ to_jsonb 
+----------
+ [-10]
+(1 row)
+
+SELECT cbor.to_jsonb('\x3863');
+ to_jsonb 
+----------
+ [-100]
+(1 row)
+
+SELECT cbor.to_jsonb('\x3903e7');
+ to_jsonb 
+----------
+ [-1000]
+(1 row)
+
+SELECT cbor.to_jsonb('\xf90000');
+ to_jsonb 
+----------
+ [0]
+(1 row)
+
+SELECT cbor.to_jsonb('\xf98000');
+ to_jsonb 
+----------
+ [0]
+(1 row)
+
+SELECT cbor.to_jsonb('\xf93c00');
+ to_jsonb 
+----------
+ [1]
+(1 row)
+
+SELECT cbor.to_jsonb('\xfb3ff199999999999a');
+ to_jsonb 
+----------
+ [1.1]
+(1 row)
+
+SELECT cbor.to_jsonb('\xf93e00');
+ to_jsonb 
+----------
+ [1.5]
+(1 row)
+
+SELECT cbor.to_jsonb('\xf97bff');
+ to_jsonb 
+----------
+ [65504]
+(1 row)
+
+SELECT cbor.to_jsonb('\xfa47c35000');
+ to_jsonb 
+----------
+ [100000]
+(1 row)
+
+SELECT cbor.to_jsonb('\xfa7f7fffff');
+                 to_jsonb                  
+-------------------------------------------
+ [340282346638528860000000000000000000000]
+(1 row)
+
+SELECT cbor.to_jsonb('\xfb7e37e43c8800759c');
+                                                                                                                                                    to_jsonb                                                                                                                                                     
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ [1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000]
+(1 row)
+
+SELECT cbor.to_jsonb('\xf90001');
+          to_jsonb           
+-----------------------------
+ [0.00000005960464477539063]
+(1 row)
+
+SELECT cbor.to_jsonb('\xf90400');
+      to_jsonb      
+--------------------
+ [0.00006103515625]
+(1 row)
+
+SELECT cbor.to_jsonb('\xf9c400');
+ to_jsonb 
+----------
+ [-4]
+(1 row)
+
+SELECT cbor.to_jsonb('\xfbc010666666666666');
+ to_jsonb 
+----------
+ [-4.1]
+(1 row)
+
+SAVEPOINT infinity;
+SELECT cbor.to_jsonb('\xf97c00');
+ERROR:  Decoding of INFINITY value not possible since not part of JSON
+CONTEXT:  PL/pgSQL function cbor.next_float_half(bytea) line 14 at RAISE
+SQL function "next_item" statement 1
+SQL function "to_jsonb" statement 1
+ROLLBACK TO infinity;
+SAVEPOINT nan;
+SELECT cbor.to_jsonb('\xf97e00');
+ERROR:  Decoding of NAN value not possible since not part of JSON
+CONTEXT:  PL/pgSQL function cbor.next_float_half(bytea) line 16 at RAISE
+SQL function "next_item" statement 1
+SQL function "to_jsonb" statement 1
+ROLLBACK TO nan;
+SAVEPOINT infinity;
+SELECT cbor.to_jsonb('\xf9fc00');
+ERROR:  Decoding of INFINITY value not possible since not part of JSON
+CONTEXT:  PL/pgSQL function cbor.next_float_half(bytea) line 14 at RAISE
+SQL function "next_item" statement 1
+SQL function "to_jsonb" statement 1
+ROLLBACK TO infinity;
+SAVEPOINT infinity;
+SELECT cbor.to_jsonb('\xfa7f800000');
+ERROR:  Decoding of INFINITY value not possible since not part of JSON
+CONTEXT:  PL/pgSQL function cbor.next_float_single(bytea) line 23 at RAISE
+SQL function "next_item" statement 1
+SQL function "to_jsonb" statement 1
+ROLLBACK TO infinity;
+SAVEPOINT nan;
+SELECT cbor.to_jsonb('\xfa7fc00000');
+ERROR:  Decoding of NAN value not possible since not part of JSON
+CONTEXT:  PL/pgSQL function cbor.next_float_single(bytea) line 25 at RAISE
+SQL function "next_item" statement 1
+SQL function "to_jsonb" statement 1
+ROLLBACK TO nan;
+SAVEPOINT infinity;
+SELECT cbor.to_jsonb('\xfaff800000');
+ERROR:  Decoding of INFINITY value not possible since not part of JSON
+CONTEXT:  PL/pgSQL function cbor.next_float_single(bytea) line 23 at RAISE
+SQL function "next_item" statement 1
+SQL function "to_jsonb" statement 1
+ROLLBACK TO infinity;
+SAVEPOINT infinity;
+SELECT cbor.to_jsonb('\xfb7ff0000000000000');
+ERROR:  Decoding of INFINITY value not possible since not part of JSON
+CONTEXT:  PL/pgSQL function cbor.next_float_double(bytea) line 27 at RAISE
+SQL function "next_item" statement 1
+SQL function "to_jsonb" statement 1
+ROLLBACK TO infinity;
+SAVEPOINT nan;
+SELECT cbor.to_jsonb('\xfb7ff8000000000000');
+ERROR:  Decoding of NAN value not possible since not part of JSON
+CONTEXT:  PL/pgSQL function cbor.next_float_double(bytea) line 29 at RAISE
+SQL function "next_item" statement 1
+SQL function "to_jsonb" statement 1
+ROLLBACK TO nan;
+SAVEPOINT infinity;
+SELECT cbor.to_jsonb('\xfbfff0000000000000');
+ERROR:  Decoding of INFINITY value not possible since not part of JSON
+CONTEXT:  PL/pgSQL function cbor.next_float_double(bytea) line 27 at RAISE
+SQL function "next_item" statement 1
+SQL function "to_jsonb" statement 1
+ROLLBACK TO infinity;
+SELECT cbor.to_jsonb('\xf4');
+ to_jsonb 
+----------
+ [false]
+(1 row)
+
+SELECT cbor.to_jsonb('\xf5');
+ to_jsonb 
+----------
+ [true]
+(1 row)
+
+SELECT cbor.to_jsonb('\xf6');
+ to_jsonb 
+----------
+ [null]
+(1 row)
+
+SAVEPOINT undefined;
+SELECT cbor.to_jsonb('\xf7');
+ERROR:  Decoding of Undefined not possible since since not part of JSON
+CONTEXT:  PL/pgSQL function cbor.raise(text,json,anyelement) line 6 at RAISE
+SQL function "next_item" statement 1
+SQL function "to_jsonb" statement 1
+ROLLBACK TO undefined;
+SELECT cbor.to_jsonb('\xf0');
+ to_jsonb 
+----------
+ [16]
+(1 row)
+
+SELECT cbor.to_jsonb('\xf818');
+ to_jsonb 
+----------
+ [24]
+(1 row)
+
+SELECT cbor.to_jsonb('\xf8ff');
+ to_jsonb 
+----------
+ [255]
+(1 row)
+
+SAVEPOINT not_part_of_json;
+SELECT cbor.to_jsonb('\xc074323031332d30332d32315432303a30343a30305a');
+ERROR:  Decoding of CBOR type not implemented {"major_type" : 6, "additional_type" : 0}
+CONTEXT:  PL/pgSQL function cbor.raise(text,json,anyelement) line 4 at RAISE
+SQL function "next_item" statement 1
+SQL function "to_jsonb" statement 1
+ROLLBACK TO not_part_of_json;
+SAVEPOINT not_part_of_json;
+SELECT cbor.to_jsonb('\xc11a514b67b0');
+ERROR:  Decoding of CBOR type not implemented {"major_type" : 6, "additional_type" : 1}
+CONTEXT:  PL/pgSQL function cbor.raise(text,json,anyelement) line 4 at RAISE
+SQL function "next_item" statement 1
+SQL function "to_jsonb" statement 1
+ROLLBACK TO not_part_of_json;
+SAVEPOINT not_part_of_json;
+SELECT cbor.to_jsonb('\xc1fb41d452d9ec200000');
+ERROR:  Decoding of CBOR type not implemented {"major_type" : 6, "additional_type" : 1}
+CONTEXT:  PL/pgSQL function cbor.raise(text,json,anyelement) line 4 at RAISE
+SQL function "next_item" statement 1
+SQL function "to_jsonb" statement 1
+ROLLBACK TO not_part_of_json;
+SAVEPOINT not_part_of_json;
+SELECT cbor.to_jsonb('\xd74401020304');
+ERROR:  Decoding of CBOR type not implemented {"major_type" : 6, "additional_type" : 23}
+CONTEXT:  PL/pgSQL function cbor.raise(text,json,anyelement) line 4 at RAISE
+SQL function "next_item" statement 1
+SQL function "to_jsonb" statement 1
+ROLLBACK TO not_part_of_json;
+SAVEPOINT not_implemented;
+SELECT cbor.to_jsonb('\xd818456449455446');
+ERROR:  Decoding of CBOR type not implemented {"major_type" : 6, "additional_type" : 24}
+CONTEXT:  PL/pgSQL function cbor.raise(text,json,anyelement) line 4 at RAISE
+SQL function "next_item" statement 1
+SQL function "to_jsonb" statement 1
+ROLLBACK TO not_implemented;
+SAVEPOINT not_part_of_json;
+SELECT cbor.to_jsonb('\xd82076687474703a2f2f7777772e6578616d706c652e636f6d');
+ERROR:  Decoding of CBOR type not implemented {"major_type" : 6, "additional_type" : 24}
+CONTEXT:  PL/pgSQL function cbor.raise(text,json,anyelement) line 4 at RAISE
+SQL function "next_item" statement 1
+SQL function "to_jsonb" statement 1
+ROLLBACK TO not_part_of_json;
+SELECT cbor.to_jsonb('\x40');
+ to_jsonb 
+----------
+ [""]
+(1 row)
+
+SELECT cbor.to_jsonb('\x4401020304');
+   to_jsonb   
+--------------
+ ["01020304"]
+(1 row)
+
+SELECT cbor.to_jsonb('\x60');
+ to_jsonb 
+----------
+ [""]
+(1 row)
+
+SELECT cbor.to_jsonb('\x6161');
+ to_jsonb 
+----------
+ ["a"]
+(1 row)
+
+SELECT cbor.to_jsonb('\x6449455446');
+ to_jsonb 
+----------
+ ["IETF"]
+(1 row)
+
+SELECT cbor.to_jsonb('\x62225c');
+ to_jsonb 
+----------
+ ["\"\\"]
+(1 row)
+
+SELECT cbor.to_jsonb('\x62c3bc');
+ to_jsonb 
+----------
+ ["ü"]
+(1 row)
+
+SELECT cbor.to_jsonb('\x63e6b0b4');
+ to_jsonb 
+----------
+ ["水"]
+(1 row)
+
+SELECT cbor.to_jsonb('\x64f0908591');
+ to_jsonb 
+----------
+ ["𐅑"]
+(1 row)
+
+SELECT cbor.to_jsonb('\x80');
+ to_jsonb 
+----------
+ [[]]
+(1 row)
+
+SELECT cbor.to_jsonb('\x83010203');
+  to_jsonb   
+-------------
+ [[1, 2, 3]]
+(1 row)
+
+SELECT cbor.to_jsonb('\x8301820203820405');
+       to_jsonb        
+-----------------------
+ [[1, [2, 3], [4, 5]]]
+(1 row)
+
+SELECT cbor.to_jsonb('\x98190102030405060708090a0b0c0d0e0f101112131415161718181819');
+                                           to_jsonb                                            
+-----------------------------------------------------------------------------------------------
+ [[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]]
+(1 row)
+
+SELECT cbor.to_jsonb('\xa0');
+ to_jsonb 
+----------
+ [{}]
+(1 row)
+
+SELECT cbor.to_jsonb('\xa201020304');
+      to_jsonb      
+--------------------
+ [{"1": 2, "3": 4}]
+(1 row)
+
+SELECT cbor.to_jsonb('\xa26161016162820203');
+        to_jsonb         
+-------------------------
+ [{"a": 1, "b": [2, 3]}]
+(1 row)
+
+SELECT cbor.to_jsonb('\x826161a161626163');
+      to_jsonb       
+---------------------
+ [["a", {"b": "c"}]]
+(1 row)
+
+SELECT cbor.to_jsonb('\xa56161614161626142616361436164614461656145');
+                       to_jsonb                       
+------------------------------------------------------
+ [{"a": "A", "b": "B", "c": "C", "d": "D", "e": "E"}]
+(1 row)
+
+SELECT cbor.to_jsonb('\x5f42010243030405ff');
+    to_jsonb    
+----------------
+ ["0102030405"]
+(1 row)
+
+SELECT cbor.to_jsonb('\x7f657374726561646d696e67ff');
+   to_jsonb    
+---------------
+ ["streaming"]
+(1 row)
+
+SELECT cbor.to_jsonb('\x9fff');
+ to_jsonb 
+----------
+ [[]]
+(1 row)
+
+SELECT cbor.to_jsonb('\x9f018202039f0405ffff');
+       to_jsonb        
+-----------------------
+ [[1, [2, 3], [4, 5]]]
+(1 row)
+
+SELECT cbor.to_jsonb('\x9f01820203820405ff');
+       to_jsonb        
+-----------------------
+ [[1, [2, 3], [4, 5]]]
+(1 row)
+
+SELECT cbor.to_jsonb('\x83018202039f0405ff');
+       to_jsonb        
+-----------------------
+ [[1, [2, 3], [4, 5]]]
+(1 row)
+
+SELECT cbor.to_jsonb('\x83019f0203ff820405');
+       to_jsonb        
+-----------------------
+ [[1, [2, 3], [4, 5]]]
+(1 row)
+
+SELECT cbor.to_jsonb('\x9f0102030405060708090a0b0c0d0e0f101112131415161718181819ff');
+                                           to_jsonb                                            
+-----------------------------------------------------------------------------------------------
+ [[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25]]
+(1 row)
+
+SELECT cbor.to_jsonb('\xbf61610161629f0203ffff');
+        to_jsonb         
+-------------------------
+ [{"a": 1, "b": [2, 3]}]
+(1 row)
+
+SELECT cbor.to_jsonb('\x826161bf61626163ff');
+      to_jsonb       
+---------------------
+ [["a", {"b": "c"}]]
+(1 row)
+
+SELECT cbor.to_jsonb('\xbf6346756ef563416d7421ff');
+          to_jsonb          
+----------------------------
+ [{"Amt": -2, "Fun": true}]
+(1 row)
+
 ROLLBACK;
