@@ -71,7 +71,7 @@ Converts *cbor* to [JSON] from [CBOR] [bytea] value.
 Example:
 
 ```sql
-SELECT jsonb_pretty(cbor.to_jsonb('\xa26161016162820203'::bytea));
+SELECT cbor.to_jsonb('\xa26161016162820203'::bytea);
 ```
 
 ```json

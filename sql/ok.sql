@@ -1,18 +1,10 @@
+--
+-- https://tools.ietf.org/html/rfc7049#appendix-A
+--
 BEGIN;
 
 CREATE EXTENSION IF NOT EXISTS cbor;
 
---
--- Major type	0 (Positive/Unsigned integer)
---
-
--- major_type = 0 AND additional_type <= 23
-SELECT cbor.to_jsonb('\x00'::bytea);
-SELECT cbor.to_jsonb('\x00'::bytea);
-
-
-\a
-\t
 SELECT cbor.to_jsonb('\x00');
 SELECT cbor.to_jsonb('\x01');
 SELECT cbor.to_jsonb('\x0a');
@@ -44,28 +36,79 @@ SELECT cbor.to_jsonb('\xf90001');
 SELECT cbor.to_jsonb('\xf90400');
 SELECT cbor.to_jsonb('\xf9c400');
 SELECT cbor.to_jsonb('\xfbc010666666666666');
+
+SAVEPOINT infinity;
 SELECT cbor.to_jsonb('\xf97c00');
+ROLLBACK TO infinity;
+
+SAVEPOINT nan;
 SELECT cbor.to_jsonb('\xf97e00');
+ROLLBACK TO nan;
+
+SAVEPOINT infinity;
 SELECT cbor.to_jsonb('\xf9fc00');
+ROLLBACK TO infinity;
+
+SAVEPOINT infinity;
 SELECT cbor.to_jsonb('\xfa7f800000');
+ROLLBACK TO infinity;
+
+SAVEPOINT nan;
 SELECT cbor.to_jsonb('\xfa7fc00000');
+ROLLBACK TO nan;
+
+SAVEPOINT infinity;
 SELECT cbor.to_jsonb('\xfaff800000');
+ROLLBACK TO infinity;
+
+SAVEPOINT infinity;
 SELECT cbor.to_jsonb('\xfb7ff0000000000000');
+ROLLBACK TO infinity;
+
+SAVEPOINT nan;
 SELECT cbor.to_jsonb('\xfb7ff8000000000000');
+ROLLBACK TO nan;
+
+SAVEPOINT infinity;
 SELECT cbor.to_jsonb('\xfbfff0000000000000');
+ROLLBACK TO infinity;
+
 SELECT cbor.to_jsonb('\xf4');
 SELECT cbor.to_jsonb('\xf5');
 SELECT cbor.to_jsonb('\xf6');
+
+SAVEPOINT undefined;
 SELECT cbor.to_jsonb('\xf7');
+ROLLBACK TO undefined;
+
 SELECT cbor.to_jsonb('\xf0');
 SELECT cbor.to_jsonb('\xf818');
 SELECT cbor.to_jsonb('\xf8ff');
+
+SAVEPOINT not_part_of_json;
 SELECT cbor.to_jsonb('\xc074323031332d30332d32315432303a30343a30305a');
+ROLLBACK TO not_part_of_json;
+
+SAVEPOINT not_part_of_json;
 SELECT cbor.to_jsonb('\xc11a514b67b0');
+ROLLBACK TO not_part_of_json;
+
+SAVEPOINT not_part_of_json;
 SELECT cbor.to_jsonb('\xc1fb41d452d9ec200000');
+ROLLBACK TO not_part_of_json;
+
+SAVEPOINT not_part_of_json;
 SELECT cbor.to_jsonb('\xd74401020304');
+ROLLBACK TO not_part_of_json;
+
+SAVEPOINT not_implemented;
 SELECT cbor.to_jsonb('\xd818456449455446');
+ROLLBACK TO not_implemented;
+
+SAVEPOINT not_part_of_json;
 SELECT cbor.to_jsonb('\xd82076687474703a2f2f7777772e6578616d706c652e636f6d');
+ROLLBACK TO not_part_of_json;
+
 SELECT cbor.to_jsonb('\x40');
 SELECT cbor.to_jsonb('\x4401020304');
 SELECT cbor.to_jsonb('\x60');

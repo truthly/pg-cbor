@@ -3,6 +3,10 @@ RETURNS anyelement
 LANGUAGE plpgsql
 AS $$
 BEGIN
-RAISE '% %', message, debug;
+IF debug IS NOT NULL THEN
+  RAISE '% %', message, debug;
+ELSE
+  RAISE '%', message;
+END IF;
 END;
 $$;

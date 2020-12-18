@@ -15,9 +15,16 @@ SQL_SRC = \
 	TYPES/next_state.sql \
 	FUNCTIONS/raise.sql \
 	FUNCTIONS/bytea_to_numeric.sql \
+	FUNCTIONS/next_float_half.sql \
+	FUNCTIONS/next_float_single.sql \
+	FUNCTIONS/next_float_double.sql \
 	FUNCTIONS/next_item.sql \
 	FUNCTIONS/next_array.sql \
 	FUNCTIONS/next_map.sql \
+	FUNCTIONS/next_indefinite_array.sql \
+	FUNCTIONS/next_indefinite_map.sql \
+	FUNCTIONS/next_indefinite_byte_string.sql \
+	FUNCTIONS/next_indefinite_text_string.sql \
   FUNCTIONS/to_jsonb.sql \
 	COMMENTS/next_state.sql
 
