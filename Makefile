@@ -8,7 +8,7 @@ PG_CONFIG = pg_config
 PGXS := $(shell $(PG_CONFIG) --pgxs)
 include $(PGXS)
 
-all: readme cbor--1.0.sql
+all: cbor--1.0.sql
 
 SQL_SRC = \
   complain_header.sql \
@@ -31,6 +31,3 @@ SQL_SRC = \
 
 cbor--1.0.sql: $(SQL_SRC)
 	cat $^ > $@
-
-readme:
-	sh README.sh

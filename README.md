@@ -6,18 +6,34 @@
 1. [Usage](#usage)
 1. [API](#api)
     1. [cbor.to_jsonb()]
+    1. [cbor.to_jsonb_array()]
 1. [Internal types](#internal-types)
     1. [next_state]
 1. [Internal functions](#internal-functions)
     1. [cbor.next_item()]
     1. [cbor.next_array()]
     1. [cbor.next_map()]
+    1. [cbor.next_indefinite_array()]
+    1. [cbor.next_indefinite_map()]
+    1. [cbor.next_indefinite_byte_string()]
+    1. [cbor.next_indefinite_text_string()]
+    1. [cbor.next_float_half()]
+    1. [cbor.next_float_single()]
+    1. [cbor.next_float_double()]
 
 [cbor.to_jsonb()]: #to-jsonb
+[cbor.to_jsonb_array()]: #to-jsonb-array
 [next_state]: #next-state
 [cbor.next_item()]: #next-item
 [cbor.next_array()]: #next-array
 [cbor.next_map()]: #next-map
+[cbor.next_indefinite_array()]: #next-indefinite-array
+[cbor.next_indefinite_map()]: #next-indefinite-map
+[cbor.next_indefinite_byte_string()]: #next-indefinite-byte-string
+[cbor.next_indefinite_text_string()]: #next-indefinite-text-string
+[cbor.next_float_half()]: #next-float-half
+[cbor.next_float_single()]: #next-float-single
+[cbor.next_float_double()]: #next-float-double
 
 <h2 id="about">1. About</h2>
 
@@ -52,11 +68,26 @@ Use with:
 
 <h2 id="api">5. API</h2>
 
-<h3 id="to-jsonb"><code>cbor.to_jsonb(cbor bytea) → jsonb</code></h3>
+<h3 id="to-jsonb"><code>cbor.to_jsonb(cbor bytea, encode_binary_format text DEFAULT 'hex') → jsonb</code></h3>
+
+  Input Parameter     | Type  | Default
+--------------------- | ----- | -----------
+ cbor                 | bytea |
+ encode_binary_format | text  | 'hex'
 
 Converts *cbor* to [JSON] from [CBOR] [bytea] value.
 
+Expects a single CBOR item on the root level.
+This single CBOR item may contain multiple CBOR items, e.g. if it's a CBOR *Array of items* (major type 4) or *Map of pairs of data items* (major type 5).
+However, there MUST NOT be multiple CBOR items on the *root level*. If there is, an error will be thrown, with a message informing the user about the other function [cbor.to_jsonb_array()] which is useful if multiple items on the root level is to be expected.
+
+**Note:** Since JSON doesn't have any data type for *Byte strings* (CBOR major type 2),
+if there are any such items in the CBOR, they will be represented as text.
+The textual representation for such items can be controlled via the *encode_binary_format* input parameter.
+
 [bytea]: https://www.postgresql.org/docs/current/datatype-binary.html
+
+Source code: [FUNCTIONS/to_jsonb.sql](https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/to_jsonb.sql#L1)
 
 Example:
 
@@ -65,34 +96,43 @@ SELECT cbor.to_jsonb('\xa26161016162820203'::bytea);
 ```
 
 ```json
-[{"a": 1, "b": [2, 3]}]
+{"a": 1, "b": [2, 3]}
 ```
 
-Source code:
+<h3 id="to-jsonb-array"><code>cbor.to_jsonb_array(cbor bytea, encode_binary_format text DEFAULT 'hex') → jsonb</code></h3>
+
+  Input Parameter     | Type  | Default
+--------------------- | ----- | -----------
+ cbor                 | bytea |
+ encode_binary_format | text  | 'hex'
+
+Converts *cbor* to [JSON] from [CBOR] [bytea] value.
+
+Returns a json array of all the decoded CBOR items.
+
+**Note:** Since JSON doesn't have any data type for *Byte strings* (CBOR major type 2),
+if there are any such items in the CBOR, they will be represented as text.
+The textual representation for such items can be controlled via the *encode_binary_format* input parameter.
+
+[bytea]: https://www.postgresql.org/docs/current/datatype-binary.html
+
+Source code: [FUNCTIONS/to_jsonb.sql](https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/to_jsonb.sql#L1)
+
+Example:
 
 ```sql
-CREATE OR REPLACE FUNCTION cbor.to_jsonb(
-  cbor bytea,
-  encode_binary_format text DEFAULT 'hex'
-)
-RETURNS jsonb
-LANGUAGE sql
-AS $$
-SELECT
-  CASE
-    WHEN length(remainder) = 0
-    THEN item
-    ELSE cbor.raise('Multiple root level CBOR items. Use to_jsonb_array() instead if this is expected.',NULL,NULL::jsonb)
-  END
-FROM cbor.next_item(to_jsonb.cbor, encode_binary_format)
-$$;
+SELECT cbor.to_jsonb_array('\xa26161016162820203a26161016162820203'::bytea);
+```
+
+```json
+[{"a": 1, "b": [2, 3]}, {"a": 1, "b": [2, 3]}]
 ```
 
 <h2 id="internal-types">6. Internal types</h2>
 
 <h3 id="next-state"><code>cbor.next_state</code></h3>
 
-Used by [cbor.next_item()], [cbor.next_array()] and [cbor.next_map()]
+Used by [cbor.next_item()], [cbor.next_array()], [cbor.next_map()], etc
 to return the next decoded CBOR *item* and the *remainder*.
 
 For each decoded CBOR item, the *remainder* is reduced,
@@ -119,6 +159,24 @@ If the item is an *array*, [cbor.next_array()] is called to decode *data_value* 
 
 If the item is an *map*, [cbor.next_map()] is called to decode *data_value* number of key/value item pairs that follows.
 
+If the item is an *indefinite array*, [cbor.next_indefinite_array()] is called to decode all items that follows, till next corresponding [Break Code].
+
+If the item is an *indefinite map*, [cbor.next_indefinite_map()] is called to decode all key/value item pairs that follows, till next corresponding [Break Code].
+
+If the item is an *indefinite byte string*, [cbor.next_indefinite_byte_string()] is called to decode all byte strings that follows, till next corresponding [Break Code]. The returned item will be a single byte string created by concatenating all the decoded byte strings.
+
+If the item is an *indefinite text string*, [cbor.next_indefinite_text_string()] is called to decode all text strings that follows, till next corresponding [Break Code]. The returned item will be a single text string created by concatenating all the decoded text strings.
+
+If the item is a *IEEE 754 half-precision float*, [cbor.next_float_half()] is called to decode the value.
+
+If the item is a *IEEE 754 single-precision float*, [cbor.next_float_single()] is called to decode the value.
+
+If the item is a *IEEE 754 double-precision float*, [cbor.next_float_double()] is called to decode the value.
+
+[Break Code]: https://en.wikipedia.org/wiki/CBOR#Break_control_code_(Additional_type_value_=_31)
+
+Source code: [FUNCTIONS/next_item.sql](https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/next_item.sql#L1)
+
 Example:
 
 ```sql
@@ -129,88 +187,14 @@ SELECT * FROM cbor.next_item('\x0a0b0c'::bytea);
 (1 row)
 ```
 
-[Source code:](https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/next_item.sql#L1)
-
-```sql
-CREATE OR REPLACE FUNCTION cbor.next_item(cbor bytea, encode_binary_format text)
-RETURNS cbor.next_state
-IMMUTABLE
-LANGUAGE sql
-AS $$
-SELECT
-  CASE
-    WHEN major_type = 0 AND additional_type <= 27 THEN ROW(substring(cbor,2+length_bytes), pg_catalog.to_jsonb(data_value))::cbor.next_state
-    WHEN major_type = 1 AND additional_type <= 27 THEN ROW(substring(cbor,2+length_bytes), pg_catalog.to_jsonb(-1-data_value))::cbor.next_state
-    WHEN major_type = 2 AND additional_type <= 26 THEN ROW(substring(cbor,2+length_bytes+data_value::integer), pg_catalog.to_jsonb(encode(substring(cbor,2+length_bytes,data_value::integer),encode_binary_format)))::cbor.next_state
-    WHEN major_type = 2 AND additional_type  = 31 THEN cbor.next_indefinite_byte_string(substring(cbor,2), encode_binary_format)
-    WHEN major_type = 3 AND additional_type <= 26 THEN ROW(substring(cbor,2+length_bytes+data_value::integer), pg_catalog.to_jsonb(convert_from(substring(cbor,2+length_bytes,data_value::integer),'utf8')))::cbor.next_state
-    WHEN major_type = 3 AND additional_type  = 31 THEN cbor.next_indefinite_text_string(substring(cbor,2), encode_binary_format)
-    WHEN major_type = 4 AND additional_type <= 26 THEN cbor.next_array(substring(cbor,2+length_bytes), data_value::integer, encode_binary_format)
-    WHEN major_type = 4 AND additional_type  = 31 THEN cbor.next_indefinite_array(substring(cbor,2), encode_binary_format)
-    WHEN major_type = 5 AND additional_type <= 26 THEN cbor.next_map(substring(cbor,2+length_bytes), data_value::integer, encode_binary_format)
-    WHEN major_type = 5 AND additional_type  = 31 THEN cbor.next_indefinite_map(substring(cbor,2), encode_binary_format)
-    WHEN major_type = 6 AND additional_type  = 2  THEN (SELECT ROW(tag_item.remainder, pg_catalog.to_jsonb(cbor.bytea_to_numeric(decode(tag_item.item#>>'{}','hex'))))::cbor.next_state FROM cbor.next_item(substring(cbor,2), encode_binary_format) AS tag_item)
-    WHEN major_type = 6 AND additional_type  = 3  THEN (SELECT ROW(tag_item.remainder, pg_catalog.to_jsonb(-1-cbor.bytea_to_numeric(decode(tag_item.item#>>'{}','hex'))))::cbor.next_state FROM cbor.next_item(substring(cbor,2), encode_binary_format) AS tag_item)
-    WHEN major_type = 7 AND additional_type <= 19 THEN ROW(substring(cbor,2+length_bytes), pg_catalog.to_jsonb(data_value))::cbor.next_state
-    WHEN major_type = 7 AND additional_type  = 20 THEN ROW(substring(cbor,2), pg_catalog.to_jsonb(false))::cbor.next_state
-    WHEN major_type = 7 AND additional_type  = 21 THEN ROW(substring(cbor,2), pg_catalog.to_jsonb(true))::cbor.next_state
-    WHEN major_type = 7 AND additional_type  = 22 THEN ROW(substring(cbor,2), 'null'::jsonb)::cbor.next_state
-    WHEN major_type = 7 AND additional_type  = 23 THEN cbor.raise('Decoding of Undefined not possible since since not part of JSON',NULL,NULL::cbor.next_state)
-    WHEN major_type = 7 AND additional_type  = 24 THEN ROW(substring(cbor,2+length_bytes), pg_catalog.to_jsonb(data_value))::cbor.next_state
-    WHEN major_type = 7 AND additional_type  = 25 THEN cbor.next_float_half(substring(cbor,2))
-    WHEN major_type = 7 AND additional_type  = 26 THEN cbor.next_float_single(substring(cbor,2))
-    WHEN major_type = 7 AND additional_type  = 27 THEN cbor.next_float_double(substring(cbor,2))
-    ELSE cbor.raise('Decoding of CBOR type not implemented',json_build_object('major_type',major_type,'additional_type',additional_type),NULL::cbor.next_state)
-  END
-FROM (VALUES(
-  -- major_type:
-  (get_byte(cbor,0)>>5)&'111'::bit(3)::integer,
-  -- additional_type:
-  get_byte(cbor,0)&'11111'::bit(5)::integer
-  )) AS data_item_header(major_type, additional_type)
-JOIN LATERAL (VALUES(
-  CASE WHEN additional_type <= 23 THEN 0
-       WHEN additional_type  = 24 THEN 1
-       WHEN additional_type  = 25 THEN 2
-       WHEN additional_type  = 26 THEN 4
-       WHEN additional_type  = 27 THEN 8
-  END,
-  CASE WHEN additional_type <= 23 THEN
-         additional_type::numeric
-       WHEN additional_type  = 24 THEN
-         -- uint8_t:
-         get_byte(cbor,1)::numeric
-       WHEN additional_type  = 25 THEN
-         -- uint16_t:
-         ((get_byte(cbor,1)<<8) +
-           get_byte(cbor,2))::numeric
-       WHEN additional_type  = 26 THEN
-         -- uint32_t:
-         ((get_byte(cbor,1)::bigint<<24) +
-          (get_byte(cbor,2)::bigint<<16) +
-          (get_byte(cbor,3)::bigint<<8) +
-           get_byte(cbor,4)::bigint)::numeric
-       WHEN additional_type  = 27 THEN
-         -- uint64_t:
-         floor((get_byte(cbor,1)*2::numeric^56) +
-               (get_byte(cbor,2)*2::numeric^48) +
-               (get_byte(cbor,3)*2::numeric^40) +
-               (get_byte(cbor,4)*2::numeric^32) +
-               (get_byte(cbor,5)*2::numeric^24) +
-               (get_byte(cbor,6)*2::numeric^16) +
-               (get_byte(cbor,7)*2::numeric^8) +
-                get_byte(cbor,8)::numeric)
-  END
-)) AS additional_type_meaning(length_bytes, data_value) ON TRUE
-$$;
-```
-
 <h3 id="next-array"><code>cbor.next_array(cbor bytea, item_count integer) → cbor.next_state</code></h3>
 
 Decodes *item_count* CBOR items from the beginning of the *cbor* [bytea] value.
 
 The returned *item* will be a *jsonb array*, and the *remainder* will contain the CBOR data left to process,
 after having processed all the CBOR items for the array.
+
+Source code: [FUNCTIONS/next_array.sql](https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/next_array.sql#L1)
 
 Example:
 
@@ -222,38 +206,14 @@ SELECT * FROM cbor.next_array('\x0203'::bytea,2);
 (1 row)
 ```
 
-[Source code:](https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/next_array.sql#L1)
-
-```sql
-CREATE OR REPLACE FUNCTION cbor.next_array(cbor bytea, item_count integer, encode_binary_format text)
-RETURNS cbor.next_state
-IMMUTABLE
-LANGUAGE sql
-AS $$
-WITH RECURSIVE x AS (
-  SELECT
-    next_array.cbor AS remainder,
-    next_array.item_count,
-    jsonb_build_array() AS jsonb_array
-  UNION ALL
-  SELECT
-    next_item.remainder,
-    x.item_count-1,
-    x.jsonb_array || jsonb_build_array(next_item.item)
-  FROM x
-  JOIN LATERAL cbor.next_item(x.remainder, encode_binary_format) ON TRUE
-  WHERE x.item_count > 0
-)
-SELECT ROW(x.remainder, x.jsonb_array) FROM x WHERE x.item_count = 0
-$$;
-```
-
 <h3 id="next-map"><code>cbor.next_map(cbor bytea, item_count integer) → cbor.next_state</code></h3>
 
 Decodes *item_count* pair of key/value CBOR items from the beginning of the *cbor* [bytea] value.
 
 The returned *item* will be a *jsonb object*, and the *remainder* will contain the CBOR data left to process,
 after having processed all the CBOR items for the map.
+
+Source code: [FUNCTIONS/next_map.sql](https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/next_map.sql#L1)
 
 Example:
 
@@ -265,30 +225,143 @@ SELECT * FROM cbor.next_map('\x6161016162820203'::bytea,2);
 (1 row)
 ```
 
-[Source code:](https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/next_map.sql#L1)
+<h3 id="next-indefinite-array"><code>cbor.next_indefinite_array(cbor bytea, encode_binary_format text) → cbor.next_state</code></h3>
 
+Decodes CBOR items from the beginning of the *cbor* [bytea] value, until reaching a [Break Code].
+
+The returned *item* field is a jsonb array of all the decoded items.
+
+Similar to [cbor.next_array()], but doesn't have the *item_count* input parameter to specify how many items to expect, instead the [Break Code] determines the end.
+
+Source code: [FUNCTIONS/next_indefinite_array.sql](https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/next_indefinite_array.sql#L1)
+
+Example:
 
 ```sql
-CREATE OR REPLACE FUNCTION cbor.next_map(cbor bytea, item_count integer, encode_binary_format text)
-RETURNS cbor.next_state
-IMMUTABLE
-LANGUAGE sql
-AS $$
-WITH RECURSIVE x AS (
-  SELECT
-    next_map.cbor AS remainder,
-    next_map.item_count,
-    jsonb_build_object() AS map
-  UNION ALL
-  SELECT
-    map_value.remainder,
-    x.item_count-1,
-    x.map || jsonb_build_object(map_key.item#>>'{}', map_value.item)
-  FROM x
-  JOIN LATERAL cbor.next_item(x.remainder, encode_binary_format) AS map_key ON TRUE
-  JOIN LATERAL cbor.next_item(map_key.remainder, encode_binary_format) AS map_value ON TRUE
-  WHERE x.item_count > 0
-)
-SELECT ROW(x.remainder, x.map) FROM x WHERE x.item_count = 0
-$$;
+SELECT * FROM cbor.next_indefinite_array('\x010203ff'::bytea,'hex');
+ remainder |   item
+-----------+-----------
+ \x        | [1, 2, 3]
+(1 row)
+```
+
+<h3 id="next-indefinite-map"><code>cbor.next_indefinite_map(cbor bytea, encode_binary_format text) → cbor.next_state</code></h3>
+
+Decodes CBOR key/value item pairs from the beginning of the *cbor* [bytea] value, until reaching a [Break Code].
+
+The returned *item* field is a jsonb object of all the decoded key/value item pairs.
+
+Similar to [cbor.next_map()], but doesn't have the *item_count* input parameter to specify how many items to expect, instead the [Break Code] determines the end.
+
+Source code: [FUNCTIONS/next_indefinite_map.sql](https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/next_indefinite_map.sql#L1)
+
+Example:
+
+```sql
+SELECT * FROM cbor.next_indefinite_map('\x61610a616214ff'::bytea,'hex');
+ remainder |        item
+-----------+--------------------
+ \x        | {"a": 10, "b": 20}
+(1 row)
+```
+
+<h3 id="next-indefinite-byte-string"><code>cbor.next_indefinite_byte_string(cbor bytea, encode_binary_format text) → cbor.next_state</code></h3>
+
+Decodes CBOR *Byte string* items from the beginning of the *cbor* [bytea] value, until reaching a [Break Code].
+
+If encountering a CBOR item that is not a *Byte string* (major type 2), an error will be thrown.
+
+The returned *item* field is a textual representation of the concatenated byte strings,
+in the format specified using the *encode_binary_format* input parameter.
+
+Source code: [FUNCTIONS/next_indefinite_byte_string.sql](https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/next_indefinite_byte_string.sql#L1)
+
+Example:
+
+```sql
+SELECT * FROM cbor.next_indefinite_byte_string('\x42010243030405ff'::bytea,'hex');
+ remainder |     item
+-----------+--------------
+ \x        | "0102030405"
+(1 row)
+```
+
+<h3 id="next-indefinite-text-string"><code>cbor.next_indefinite_text_string(cbor bytea, encode_binary_format text) → cbor.next_state</code></h3>
+
+Decodes CBOR *Text string* items from the beginning of the *cbor* [bytea] value, until reaching a [Break Code].
+
+If encountering a CBOR item that is not a *Text string* (major type 3), an error will be thrown.
+
+The returned *item* field is the concatenation of all decoded text strings.
+
+Source code: [FUNCTIONS/next_indefinite_text_string.sql](https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/next_indefinite_text_string.sql#L1)
+
+Example:
+
+```sql
+SELECT * FROM cbor.next_indefinite_text_string('\x657374726561646d696e67ff'::bytea,'hex');
+ remainder |    item
+-----------+-------------
+ \x        | "streaming"
+(1 row)
+```
+
+<h3 id="next-float-half"><code>cbor.next_float_half(cbor bytea) → cbor.next_state</code></h3>
+
+Decodes a *IEEE 754 half-precision float* CBOR item from the beginning of the *cbor* [bytea] value.
+
+**Note:** Since the special float values `Infinity` and `NaN` are not part of the [JSON] specification, there is no unambiguous way of representing them in JSON. Per design, an error will be thrown if encountering such values.
+
+The returned *item* field is of JSON type *number*.
+
+Source code: [FUNCTIONS/next_float_half.sql](https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/next_float_half.sql#L1)
+
+Example:
+
+```sql
+SELECT * FROM cbor.next_float_half('\x3e00'::bytea);
+ remainder | item
+-----------+------
+ \x        | 1.5
+(1 row)
+```
+
+<h3 id="next-float-single"><code>cbor.next_float_single(cbor bytea) → cbor.next_state</code></h3>
+
+Decodes a *IEEE 754 single-precision float* CBOR item from the beginning of the *cbor* [bytea] value.
+
+**Note:** Since the special float values `Infinity` and `NaN` are not part of the [JSON] specification, there is no unambiguous way of representing them in JSON. Per design, an error will be thrown if encountering such values.
+
+The returned *item* field is of JSON type *number*.
+
+Source code: [FUNCTIONS/next_float_single.sql](https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/next_float_single.sql#L1)
+
+Example:
+
+```sql
+SELECT * FROM cbor.next_float_single('\x47c35000'::bytea);
+ remainder |  item
+-----------+--------
+ \x        | 100000
+(1 row)
+```
+
+<h3 id="next-float-double"><code>cbor.next_float_double(cbor bytea) → cbor.next_state</code></h3>
+
+Decodes a *IEEE 754 double-precision float* CBOR item from the beginning of the *cbor* [bytea] value.
+
+**Note:** Since the special float values `Infinity` and `NaN` are not part of the [JSON] specification, there is no unambiguous way of representing them in JSON. Per design, an error will be thrown if encountering such values.
+
+The returned *item* field is of JSON type *number*.
+
+Source code: [FUNCTIONS/next_float_double.sql](https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/next_float_double.sql#L1)
+
+Example:
+
+```sql
+SELECT * FROM cbor.next_float_double('\xc010666666666666'::bytea);
+ remainder | item
+-----------+------
+ \x        | -4.1
+(1 row)
 ```
