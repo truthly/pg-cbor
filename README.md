@@ -180,7 +180,7 @@ Source code: [FUNCTIONS/next_item.sql](https://github.com/truthly/pg-cbor/blob/m
 Example:
 
 ```sql
-SELECT * FROM cbor.next_item('\x0a0b0c'::bytea);
+SELECT * FROM cbor.next_item('\x0a0b0c'::bytea,'hex');
  remainder | item
 -----------+------
  \x0b0c    | 10
