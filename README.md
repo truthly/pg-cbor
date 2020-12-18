@@ -83,7 +83,8 @@ However, there MUST NOT be multiple CBOR items on the *root level*. If there is,
 
 **Note:** Since JSON doesn't have any data type for *Byte strings* (CBOR major type 2),
 if there are any such items in the CBOR, they will be represented as text.
-The textual representation for such items can be controlled via the *encode_binary_format* input parameter.
+The textual representation for such items can be controlled via the *encode_binary_format* input parameter,
+which can take any value accepted by the built-in `encode()` function, such as `'hex'` and `'base64'`.
 
 [bytea]: https://www.postgresql.org/docs/current/datatype-binary.html
 
@@ -116,7 +117,7 @@ The textual representation for such items can be controlled via the *encode_bina
 
 [bytea]: https://www.postgresql.org/docs/current/datatype-binary.html
 
-Source code: [FUNCTIONS/to_jsonb.sql](https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/to_jsonb.sql#L1)
+Source code: [FUNCTIONS/to_jsonb_array.sql](https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/to_jsonb_array.sql#L1)
 
 Example:
 
@@ -199,7 +200,7 @@ Source code: [FUNCTIONS/next_array.sql](https://github.com/truthly/pg-cbor/blob/
 Example:
 
 ```sql
-SELECT * FROM cbor.next_array('\x0203'::bytea,2);
+SELECT * FROM cbor.next_array('\x0203'::bytea,2,'hex');
  remainder |  item
 -----------+--------
  \x        | [2, 3]
@@ -218,7 +219,7 @@ Source code: [FUNCTIONS/next_map.sql](https://github.com/truthly/pg-cbor/blob/ma
 Example:
 
 ```sql
-SELECT * FROM cbor.next_map('\x6161016162820203'::bytea,2);
+SELECT * FROM cbor.next_map('\x6161016162820203'::bytea,2,'hex');
  remainder |         item
 -----------+-----------------------
  \x        | {"a": 1, "b": [2, 3]}
