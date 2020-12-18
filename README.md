@@ -77,9 +77,10 @@ Use with:
 
 Converts *cbor* to [JSON] from [CBOR] [bytea] value.
 
-Expects a single CBOR item on the root level.
+Expects exactly one CBOR item on the root level, throws an error otherwise, with a message informing the user about the other function [cbor.to_jsonb_array()] which is useful if multiple items on the root level is to be expected.
+
 This single CBOR item may contain multiple CBOR items, e.g. if it's a CBOR *Array of items* (major type 4) or *Map of pairs of data items* (major type 5).
-However, there MUST NOT be multiple CBOR items on the *root level*. If there is, an error will be thrown, with a message informing the user about the other function [cbor.to_jsonb_array()] which is useful if multiple items on the root level is to be expected.
+However, there MUST NOT be multiple CBOR items on the *root level*. If there is, an error will be thrown
 
 **Note:** Since JSON doesn't have any data type for *Byte strings* (CBOR major type 2),
 if there are any such items in the CBOR, they will be represented as text.
