@@ -12,7 +12,7 @@ WITH RECURSIVE x AS (
   SELECT
     x.i + 1,
     next_item.remainder,
-    jsonb_insert(x.jsonb_array,'{-1}',next_item.item,TRUE)
+    x.jsonb_array || jsonb_build_array(next_item.item)
   FROM x
   JOIN LATERAL cbor.next_item(x.remainder) ON TRUE
   WHERE get_byte(x.remainder,0) <> 255
