@@ -1,6 +1,6 @@
 EXTENSION = cbor
 DATA = cbor--1.0.sql
-REGRESS = rfc7049_appendix_a webauthn
+REGRESS = rfc7049_appendix_a webauthn multiple_root_level_items
 
 EXTRA_CLEAN = cbor--1.0.sql
 
@@ -26,6 +26,7 @@ SQL_SRC = \
 	FUNCTIONS/next_indefinite_byte_string.sql \
 	FUNCTIONS/next_indefinite_text_string.sql \
   FUNCTIONS/to_jsonb.sql \
+  FUNCTIONS/to_jsonb_array.sql \
 	COMMENTS/next_state.sql
 
 cbor--1.0.sql: $(SQL_SRC)

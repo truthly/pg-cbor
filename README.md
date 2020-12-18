@@ -71,26 +71,20 @@ SELECT cbor.to_jsonb('\xa26161016162820203'::bytea);
 Source code:
 
 ```sql
-CREATE OR REPLACE FUNCTION cbor.to_jsonb(cbor bytea)
+CREATE OR REPLACE FUNCTION cbor.to_jsonb(
+  cbor bytea,
+  encode_binary_format text DEFAULT 'hex'
+)
 RETURNS jsonb
 LANGUAGE sql
 AS $$
-WITH RECURSIVE x AS (
-  SELECT
-    0 AS i,
-    next_item.remainder,
-    jsonb_build_array(next_item.item) AS items
-  FROM cbor.next_item(to_jsonb.cbor)
-  UNION ALL
-  SELECT
-    x.i + 1,
-    next_item.remainder,
-    x.items || next_item.item
-  FROM x
-  JOIN LATERAL cbor.next_item(x.remainder) ON TRUE
-  WHERE length(x.remainder) > 0
-)
-SELECT x.items FROM x ORDER BY i DESC LIMIT 1
+SELECT
+  CASE
+    WHEN length(remainder) = 0
+    THEN item
+    ELSE cbor.raise('Multiple root level CBOR items. Use to_jsonb_array() instead if this is expected.',NULL,NULL::jsonb)
+  END
+FROM cbor.next_item(to_jsonb.cbor, encode_binary_format)
 $$;
 ```
 
@@ -138,7 +132,7 @@ SELECT * FROM cbor.next_item('\x0a0b0c'::bytea);
 [Source code:](https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/next_item.sql#L1)
 
 ```sql
-CREATE OR REPLACE FUNCTION cbor.next_item(cbor bytea)
+CREATE OR REPLACE FUNCTION cbor.next_item(cbor bytea, encode_binary_format text)
 RETURNS cbor.next_state
 IMMUTABLE
 LANGUAGE sql
@@ -147,16 +141,16 @@ SELECT
   CASE
     WHEN major_type = 0 AND additional_type <= 27 THEN ROW(substring(cbor,2+length_bytes), pg_catalog.to_jsonb(data_value))::cbor.next_state
     WHEN major_type = 1 AND additional_type <= 27 THEN ROW(substring(cbor,2+length_bytes), pg_catalog.to_jsonb(-1-data_value))::cbor.next_state
-    WHEN major_type = 2 AND additional_type <= 26 THEN ROW(substring(cbor,2+length_bytes+data_value::integer), pg_catalog.to_jsonb(encode(substring(cbor,2+length_bytes,data_value::integer),'hex')))::cbor.next_state
-    WHEN major_type = 2 AND additional_type  = 31 THEN cbor.next_indefinite_byte_string(substring(cbor,2))
+    WHEN major_type = 2 AND additional_type <= 26 THEN ROW(substring(cbor,2+length_bytes+data_value::integer), pg_catalog.to_jsonb(encode(substring(cbor,2+length_bytes,data_value::integer),encode_binary_format)))::cbor.next_state
+    WHEN major_type = 2 AND additional_type  = 31 THEN cbor.next_indefinite_byte_string(substring(cbor,2), encode_binary_format)
     WHEN major_type = 3 AND additional_type <= 26 THEN ROW(substring(cbor,2+length_bytes+data_value::integer), pg_catalog.to_jsonb(convert_from(substring(cbor,2+length_bytes,data_value::integer),'utf8')))::cbor.next_state
-    WHEN major_type = 3 AND additional_type  = 31 THEN cbor.next_indefinite_text_string(substring(cbor,2))
-    WHEN major_type = 4 AND additional_type <= 26 THEN cbor.next_array(substring(cbor,2+length_bytes), data_value::integer)
-    WHEN major_type = 4 AND additional_type  = 31 THEN cbor.next_indefinite_array(substring(cbor,2))
-    WHEN major_type = 5 AND additional_type <= 26 THEN cbor.next_map(substring(cbor,2+length_bytes), data_value::integer)
-    WHEN major_type = 5 AND additional_type  = 31 THEN cbor.next_indefinite_map(substring(cbor,2))
-    WHEN major_type = 6 AND additional_type  = 2  THEN (SELECT ROW(tag_item.remainder, pg_catalog.to_jsonb(cbor.bytea_to_numeric(decode(tag_item.item#>>'{}','hex'))))::cbor.next_state FROM cbor.next_item(substring(cbor,2)) AS tag_item)
-    WHEN major_type = 6 AND additional_type  = 3  THEN (SELECT ROW(tag_item.remainder, pg_catalog.to_jsonb(-1-cbor.bytea_to_numeric(decode(tag_item.item#>>'{}','hex'))))::cbor.next_state FROM cbor.next_item(substring(cbor,2)) AS tag_item)
+    WHEN major_type = 3 AND additional_type  = 31 THEN cbor.next_indefinite_text_string(substring(cbor,2), encode_binary_format)
+    WHEN major_type = 4 AND additional_type <= 26 THEN cbor.next_array(substring(cbor,2+length_bytes), data_value::integer, encode_binary_format)
+    WHEN major_type = 4 AND additional_type  = 31 THEN cbor.next_indefinite_array(substring(cbor,2), encode_binary_format)
+    WHEN major_type = 5 AND additional_type <= 26 THEN cbor.next_map(substring(cbor,2+length_bytes), data_value::integer, encode_binary_format)
+    WHEN major_type = 5 AND additional_type  = 31 THEN cbor.next_indefinite_map(substring(cbor,2), encode_binary_format)
+    WHEN major_type = 6 AND additional_type  = 2  THEN (SELECT ROW(tag_item.remainder, pg_catalog.to_jsonb(cbor.bytea_to_numeric(decode(tag_item.item#>>'{}','hex'))))::cbor.next_state FROM cbor.next_item(substring(cbor,2), encode_binary_format) AS tag_item)
+    WHEN major_type = 6 AND additional_type  = 3  THEN (SELECT ROW(tag_item.remainder, pg_catalog.to_jsonb(-1-cbor.bytea_to_numeric(decode(tag_item.item#>>'{}','hex'))))::cbor.next_state FROM cbor.next_item(substring(cbor,2), encode_binary_format) AS tag_item)
     WHEN major_type = 7 AND additional_type <= 19 THEN ROW(substring(cbor,2+length_bytes), pg_catalog.to_jsonb(data_value))::cbor.next_state
     WHEN major_type = 7 AND additional_type  = 20 THEN ROW(substring(cbor,2), pg_catalog.to_jsonb(false))::cbor.next_state
     WHEN major_type = 7 AND additional_type  = 21 THEN ROW(substring(cbor,2), pg_catalog.to_jsonb(true))::cbor.next_state
@@ -231,7 +225,7 @@ SELECT * FROM cbor.next_array('\x0203'::bytea,2);
 [Source code:](https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/next_array.sql#L1)
 
 ```sql
-CREATE OR REPLACE FUNCTION cbor.next_array(cbor bytea, item_count integer)
+CREATE OR REPLACE FUNCTION cbor.next_array(cbor bytea, item_count integer, encode_binary_format text)
 RETURNS cbor.next_state
 IMMUTABLE
 LANGUAGE sql
@@ -247,7 +241,7 @@ WITH RECURSIVE x AS (
     x.item_count-1,
     x.jsonb_array || jsonb_build_array(next_item.item)
   FROM x
-  JOIN LATERAL cbor.next_item(x.remainder) ON TRUE
+  JOIN LATERAL cbor.next_item(x.remainder, encode_binary_format) ON TRUE
   WHERE x.item_count > 0
 )
 SELECT ROW(x.remainder, x.jsonb_array) FROM x WHERE x.item_count = 0
@@ -275,7 +269,7 @@ SELECT * FROM cbor.next_map('\x6161016162820203'::bytea,2);
 
 
 ```sql
-CREATE OR REPLACE FUNCTION cbor.next_map(cbor bytea, item_count integer)
+CREATE OR REPLACE FUNCTION cbor.next_map(cbor bytea, item_count integer, encode_binary_format text)
 RETURNS cbor.next_state
 IMMUTABLE
 LANGUAGE sql
@@ -291,8 +285,8 @@ WITH RECURSIVE x AS (
     x.item_count-1,
     x.map || jsonb_build_object(map_key.item#>>'{}', map_value.item)
   FROM x
-  JOIN LATERAL cbor.next_item(x.remainder) AS map_key ON TRUE
-  JOIN LATERAL cbor.next_item(map_key.remainder) AS map_value ON TRUE
+  JOIN LATERAL cbor.next_item(x.remainder, encode_binary_format) AS map_key ON TRUE
+  JOIN LATERAL cbor.next_item(map_key.remainder, encode_binary_format) AS map_value ON TRUE
   WHERE x.item_count > 0
 )
 SELECT ROW(x.remainder, x.map) FROM x WHERE x.item_count = 0

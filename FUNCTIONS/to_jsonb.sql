@@ -1,21 +1,15 @@
-CREATE OR REPLACE FUNCTION cbor.to_jsonb(cbor bytea)
+CREATE OR REPLACE FUNCTION cbor.to_jsonb(
+  cbor bytea,
+  encode_binary_format text DEFAULT 'hex'
+)
 RETURNS jsonb
 LANGUAGE sql
 AS $$
-WITH RECURSIVE x AS (
-  SELECT
-    0 AS i,
-    next_item.remainder,
-    jsonb_build_array(next_item.item) AS items
-  FROM cbor.next_item(to_jsonb.cbor)
-  UNION ALL
-  SELECT
-    x.i + 1,
-    next_item.remainder,
-    x.items || next_item.item
-  FROM x
-  JOIN LATERAL cbor.next_item(x.remainder) ON TRUE
-  WHERE length(x.remainder) > 0
-)
-SELECT x.items FROM x ORDER BY i DESC LIMIT 1
+SELECT
+  CASE
+    WHEN length(remainder) = 0
+    THEN item
+    ELSE cbor.raise('Multiple root level CBOR items. Use to_jsonb_array() instead if this is expected.',NULL,NULL::jsonb)
+  END
+FROM cbor.next_item(to_jsonb.cbor, encode_binary_format)
 $$;

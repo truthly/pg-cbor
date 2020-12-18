@@ -1,4 +1,4 @@
-CREATE OR REPLACE FUNCTION cbor.next_indefinite_array(cbor bytea)
+CREATE OR REPLACE FUNCTION cbor.next_indefinite_array(cbor bytea, encode_binary_format text)
 RETURNS cbor.next_state
 IMMUTABLE
 LANGUAGE sql
@@ -14,7 +14,7 @@ WITH RECURSIVE x AS (
     next_item.remainder,
     x.jsonb_array || jsonb_build_array(next_item.item)
   FROM x
-  JOIN LATERAL cbor.next_item(x.remainder) ON TRUE
+  JOIN LATERAL cbor.next_item(x.remainder, encode_binary_format) ON TRUE
   WHERE get_byte(x.remainder,0) <> 255
 )
 SELECT ROW(substring(x.remainder,2), x.jsonb_array) FROM x ORDER BY i DESC LIMIT 1
