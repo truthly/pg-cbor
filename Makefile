@@ -1,6 +1,6 @@
 EXTENSION = cbor
 DATA = cbor--1.0.sql
-REGRESS = ok
+REGRESS = rfc7049_appendix_a webauthn
 
 EXTRA_CLEAN = cbor--1.0.sql
 

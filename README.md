@@ -172,27 +172,8 @@ FROM (VALUES(
   -- major_type:
   (get_byte(cbor,0)>>5)&'111'::bit(3)::integer,
   -- additional_type:
-  get_byte(cbor,0)&'11111'::bit(5)::integer,
-  -- uint8_t:
-  get_byte(cbor,1),
-  -- uint16_t:
-  (get_byte(cbor,1)<<8) +
-   get_byte(cbor,2),
-  -- uint32_t:
-  (get_byte(cbor,1)::bigint<<24) +
-  (get_byte(cbor,2)::bigint<<16) +
-  (get_byte(cbor,3)::bigint<<8) +
-   get_byte(cbor,4)::bigint,
-  -- uint64_t:
-  floor((get_byte(cbor,1)*2::numeric^56) +
-        (get_byte(cbor,2)*2::numeric^48) +
-        (get_byte(cbor,3)*2::numeric^40) +
-        (get_byte(cbor,4)*2::numeric^32) +
-        (get_byte(cbor,5)*2::numeric^24) +
-        (get_byte(cbor,6)*2::numeric^16) +
-        (get_byte(cbor,7)*2::numeric^8) +
-         get_byte(cbor,8)::numeric)
-  )) AS data_item_header(major_type, additional_type, uint8_t, uint16_t, uint32_t, uint64_t)
+  get_byte(cbor,0)&'11111'::bit(5)::integer
+  )) AS data_item_header(major_type, additional_type)
 JOIN LATERAL (VALUES(
   CASE WHEN additional_type <= 23 THEN 0
        WHEN additional_type  = 24 THEN 1
@@ -200,11 +181,31 @@ JOIN LATERAL (VALUES(
        WHEN additional_type  = 26 THEN 4
        WHEN additional_type  = 27 THEN 8
   END,
-  CASE WHEN additional_type <= 23 THEN additional_type::numeric
-       WHEN additional_type  = 24 THEN uint8_t::numeric
-       WHEN additional_type  = 25 THEN uint16_t::numeric
-       WHEN additional_type  = 26 THEN uint32_t::numeric
-       WHEN additional_type  = 27 THEN uint64_t
+  CASE WHEN additional_type <= 23 THEN
+         additional_type::numeric
+       WHEN additional_type  = 24 THEN
+         -- uint8_t:
+         get_byte(cbor,1)::numeric
+       WHEN additional_type  = 25 THEN
+         -- uint16_t:
+         ((get_byte(cbor,1)<<8) +
+           get_byte(cbor,2))::numeric
+       WHEN additional_type  = 26 THEN
+         -- uint32_t:
+         ((get_byte(cbor,1)::bigint<<24) +
+          (get_byte(cbor,2)::bigint<<16) +
+          (get_byte(cbor,3)::bigint<<8) +
+           get_byte(cbor,4)::bigint)::numeric
+       WHEN additional_type  = 27 THEN
+         -- uint64_t:
+         floor((get_byte(cbor,1)*2::numeric^56) +
+               (get_byte(cbor,2)*2::numeric^48) +
+               (get_byte(cbor,3)*2::numeric^40) +
+               (get_byte(cbor,4)*2::numeric^32) +
+               (get_byte(cbor,5)*2::numeric^24) +
+               (get_byte(cbor,6)*2::numeric^16) +
+               (get_byte(cbor,7)*2::numeric^8) +
+                get_byte(cbor,8)::numeric)
   END
 )) AS additional_type_meaning(length_bytes, data_value) ON TRUE
 $$;
