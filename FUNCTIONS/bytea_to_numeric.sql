@@ -1,7 +1,9 @@
 CREATE OR REPLACE FUNCTION cbor.bytea_to_numeric(val bytea)
 RETURNS numeric
+IMMUTABLE STRICT
 LANGUAGE plpgsql
 AS $$
+-- Based on: https://stackoverflow.com/questions/37248518/sql-function-to-convert-numeric-to-bytea-and-bytea-to-numeric
 DECLARE
 n numeric := 0;
 BEGIN
