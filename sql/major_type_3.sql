@@ -20,7 +20,8 @@ CREATE OR REPLACE FUNCTION rand_char()
 RETURNS char
 LANGUAGE sql
 AS $$
--- Valid UTF-8 byte ranges copied from: https://lemire.me/blog/2018/05/09/how-quickly-can-you-check-that-a-string-is-valid-unicode-utf-8/
+-- Valid UTF-8 byte ranges copied from:
+-- https://lemire.me/blog/2018/05/09/how-quickly-can-you-check-that-a-string-is-valid-unicode-utf-8/
 SELECT convert_from(decode(CASE floor(random()*9)::integer
 WHEN 0 THEN r(x'01',x'7f')
 WHEN 1 THEN r(x'c2',x'df')||r(x'80',x'bf')
@@ -49,8 +50,9 @@ $$;
 --
 SELECT
   jsonb_agg(cbor.to_jsonb(
-    decode(lpad(to_hex((3::bit(3) || additional_type::bit(5))::bit(8)::integer),2,'0'),'hex')
-    || convert_to(text_string,'utf8')
+    decode(
+      lpad(to_hex((3::bit(3) || additional_type::bit(5))::bit(8)::integer),2,'0')
+    ,'hex') || convert_to(text_string,'utf8')
   ))
   =
   jsonb_agg(text_string)
@@ -71,8 +73,10 @@ JOIN LATERAL (VALUES(
 --
 SELECT
   jsonb_agg(cbor.to_jsonb(
-    decode(lpad(to_hex((3::bit(3) || 24::bit(5))::bit(8)::integer),2,'0') || lpad(to_hex(data_length::bit(8)::integer),2,'0'),'hex')
-    || convert_to(text_string,'utf8')
+    decode(
+      lpad(to_hex((3::bit(3) || 24::bit(5))::bit(8)::integer),2,'0')
+      || lpad(to_hex(data_length::bit(8)::integer),2,'0')
+    ,'hex') || convert_to(text_string,'utf8')
   ))
   =
   jsonb_agg(text_string)
@@ -93,8 +97,10 @@ JOIN LATERAL (VALUES(
 --
 SELECT
   jsonb_agg(cbor.to_jsonb(
-    decode(lpad(to_hex((3::bit(3) || 25::bit(5))::bit(8)::integer),2,'0') || lpad(to_hex(data_length::bit(16)::integer),4,'0'),'hex')
-    || convert_to(text_string,'utf8')
+    decode(
+      lpad(to_hex((3::bit(3) || 25::bit(5))::bit(8)::integer),2,'0')
+      || lpad(to_hex(data_length::bit(16)::integer),4,'0')
+    ,'hex') || convert_to(text_string,'utf8')
   ))
   =
   jsonb_agg(text_string)
@@ -115,8 +121,10 @@ JOIN LATERAL (VALUES(
 --
 SELECT
   jsonb_agg(cbor.to_jsonb(
-    decode(lpad(to_hex((3::bit(3) || 26::bit(5))::bit(8)::integer),2,'0') || lpad(to_hex(data_length::bit(32)::bigint),8,'0'),'hex')
-    || convert_to(text_string,'utf8')
+    decode(
+      lpad(to_hex((3::bit(3) || 26::bit(5))::bit(8)::integer),2,'0')
+      || lpad(to_hex(data_length::bit(32)::bigint),8,'0')
+    ,'hex') || convert_to(text_string,'utf8')
   ))
   =
   jsonb_agg(text_string)
@@ -137,8 +145,10 @@ JOIN LATERAL (VALUES(
 --
 SELECT
   jsonb_agg(cbor.to_jsonb(
-    decode(lpad(to_hex((3::bit(3) || 27::bit(5))::bit(8)::integer),2,'0') || lpad(to_hex(data_length::bit(64)::bigint),16,'0'),'hex')
-    || convert_to(text_string,'utf8')
+    decode(
+      lpad(to_hex((3::bit(3) || 27::bit(5))::bit(8)::integer),2,'0')
+      || lpad(to_hex(data_length::bit(64)::bigint),16,'0')
+    ,'hex') || convert_to(text_string,'utf8')
   ))
   =
   jsonb_agg(text_string)

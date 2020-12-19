@@ -9,7 +9,11 @@ CREATE EXTENSION IF NOT EXISTS cbor;
 -- major_type = 0 AND additional_type <= 23
 --
 SELECT
-  jsonb_agg(cbor.to_jsonb(decode(lpad(to_hex((0::bit(3) || additional_type::bit(5))::bit(8)::integer),2,'0'),'hex')))
+  jsonb_agg(cbor.to_jsonb(
+    decode(
+      lpad(to_hex((0::bit(3) || additional_type::bit(5))::bit(8)::integer),2,'0')
+    ,'hex')
+  ))
   =
   jsonb_agg(additional_type)
 FROM (
@@ -22,7 +26,11 @@ FROM (
 -- major_type = 0 AND additional_type = 24
 --
 SELECT
-  jsonb_agg(cbor.to_jsonb(decode(lpad(to_hex((0::bit(3) || 24::bit(5) || data_value::bit(8))::bit(16)::integer),4,'0'),'hex')))
+  jsonb_agg(cbor.to_jsonb(
+    decode(
+      lpad(to_hex((0::bit(3) || 24::bit(5) || data_value::bit(8))::bit(16)::integer),4,'0')
+    ,'hex')
+  ))
   =
   jsonb_agg(data_value)
 FROM (
@@ -35,7 +43,11 @@ FROM (
 -- major_type = 0 AND additional_type = 25
 --
 SELECT
-  jsonb_agg(cbor.to_jsonb(decode(lpad(to_hex((0::bit(3) || 25::bit(5) || data_value::bit(16))::bit(24)::integer),6,'0'),'hex')))
+  jsonb_agg(cbor.to_jsonb(
+    decode(
+      lpad(to_hex((0::bit(3) || 25::bit(5) || data_value::bit(16))::bit(24)::integer),6,'0')
+    ,'hex')
+  ))
   =
   jsonb_agg(data_value)
 FROM (
@@ -48,7 +60,12 @@ FROM (
 -- major_type = 0 AND additional_type = 26
 --
 SELECT
-  jsonb_agg(cbor.to_jsonb(decode(lpad(to_hex((0::bit(3) || 26::bit(5))::bit(8)::integer),2,'0') || lpad(to_hex(data_value::bit(32)::bigint),8,'0'),'hex')))
+  jsonb_agg(cbor.to_jsonb(
+    decode(
+      lpad(to_hex((0::bit(3) || 26::bit(5))::bit(8)::integer),2,'0')
+      || lpad(to_hex(data_value::bit(32)::bigint),8,'0')
+    ,'hex')
+  ))
   =
   jsonb_agg(data_value)
 FROM (
@@ -61,7 +78,12 @@ FROM (
 -- major_type = 0 AND additional_type = 27
 --
 SELECT
-  jsonb_agg(cbor.to_jsonb(decode(lpad(to_hex((0::bit(3) || 27::bit(5))::bit(8)::integer),2,'0') || lpad(encode(cbor.numeric_to_bytea(data_value),'hex'),16,'0'),'hex')))
+  jsonb_agg(cbor.to_jsonb(
+    decode(
+      lpad(to_hex((0::bit(3) || 27::bit(5))::bit(8)::integer),2,'0')
+      || lpad(encode(cbor.numeric_to_bytea(data_value),'hex'),16,'0')
+    ,'hex')
+  ))
   =
   jsonb_agg(data_value)
 FROM (

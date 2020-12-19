@@ -11,10 +11,12 @@ CREATE EXTENSION IF NOT EXISTS cbor;
 -- major_type = 2 AND additional_type <= 23
 --
 SELECT
-  jsonb_agg(cbor.to_jsonb(decode(
-    lpad(to_hex((2::bit(3) || additional_type::bit(5))::bit(8)::integer),2,'0')
-    || byte_string
-  ,'hex')))
+  jsonb_agg(cbor.to_jsonb(
+    decode(
+      lpad(to_hex((2::bit(3) || additional_type::bit(5))::bit(8)::integer),2,'0')
+      || byte_string
+    ,'hex')
+  ))
   =
   jsonb_agg(byte_string)
 FROM (
@@ -30,11 +32,13 @@ JOIN LATERAL (VALUES(
 -- major_type = 2 AND additional_type = 24
 --
 SELECT
-  jsonb_agg(cbor.to_jsonb(decode(
-    lpad(to_hex((2::bit(3) || 24::bit(5))::bit(8)::integer),2,'0')
-    || lpad(to_hex(data_length::bit(8)::integer),2,'0')
-    || byte_string
-  ,'hex')))
+  jsonb_agg(cbor.to_jsonb(
+    decode(
+      lpad(to_hex((2::bit(3) || 24::bit(5))::bit(8)::integer),2,'0')
+      || lpad(to_hex(data_length::bit(8)::integer),2,'0')
+      || byte_string
+    ,'hex')
+  ))
   =
   jsonb_agg(byte_string)
 FROM (
@@ -50,11 +54,13 @@ JOIN LATERAL (VALUES(
 -- major_type = 2 AND additional_type = 25
 --
 SELECT
-  jsonb_agg(cbor.to_jsonb(decode(
-    lpad(to_hex((2::bit(3) || 25::bit(5))::bit(8)::integer),2,'0')
-    || lpad(to_hex(data_length::bit(16)::integer),4,'0')
-    || byte_string
-  ,'hex')))
+  jsonb_agg(cbor.to_jsonb(
+    decode(
+      lpad(to_hex((2::bit(3) || 25::bit(5))::bit(8)::integer),2,'0')
+      || lpad(to_hex(data_length::bit(16)::integer),4,'0')
+      || byte_string
+    ,'hex')
+  ))
   =
   jsonb_agg(byte_string)
 FROM (
@@ -70,11 +76,13 @@ JOIN LATERAL (VALUES(
 -- major_type = 2 AND additional_type = 26
 --
 SELECT
-  jsonb_agg(cbor.to_jsonb(decode(
-    lpad(to_hex((2::bit(3) || 26::bit(5))::bit(8)::integer),2,'0')
-    || lpad(to_hex(data_length::bit(32)::bigint),8,'0')
-    || byte_string
-  ,'hex')))
+  jsonb_agg(cbor.to_jsonb(
+    decode(
+      lpad(to_hex((2::bit(3) || 26::bit(5))::bit(8)::integer),2,'0')
+      || lpad(to_hex(data_length::bit(32)::bigint),8,'0')
+      || byte_string
+    ,'hex')
+  ))
   =
   jsonb_agg(byte_string)
 FROM (
@@ -90,11 +98,13 @@ JOIN LATERAL (VALUES(
 -- major_type = 2 AND additional_type = 27
 --
 SELECT
-  jsonb_agg(cbor.to_jsonb(decode(
-    lpad(to_hex((2::bit(3) || 27::bit(5))::bit(8)::integer),2,'0')
-    || lpad(to_hex(data_length::bit(64)::bigint),16,'0')
-    || byte_string
-  ,'hex')))
+  jsonb_agg(cbor.to_jsonb(
+    decode(
+      lpad(to_hex((2::bit(3) || 27::bit(5))::bit(8)::integer),2,'0')
+      || lpad(to_hex(data_length::bit(64)::bigint),16,'0')
+      || byte_string
+    ,'hex')
+  ))
   =
   jsonb_agg(byte_string)
 FROM (
@@ -110,13 +120,15 @@ JOIN LATERAL (VALUES(
 -- major_type = 2 AND additional_type = 31
 --
 SELECT
-  jsonb_agg(cbor.to_jsonb(decode(
-    lpad(to_hex((2::bit(3) || 31::bit(5))::bit(8)::integer),2,'0')
-    || repeat(lpad(to_hex((2::bit(3) || 27::bit(5))::bit(8)::integer),2,'0')
-              || lpad(to_hex(data_length::bit(64)::bigint),16,'0')
-              || byte_string, :indefinite_items)
-    || 'ff' /* Break Code */
-  ,'hex')))
+  jsonb_agg(cbor.to_jsonb(
+    decode(
+      lpad(to_hex((2::bit(3) || 31::bit(5))::bit(8)::integer),2,'0')
+      || repeat(lpad(to_hex((2::bit(3) || 27::bit(5))::bit(8)::integer),2,'0')
+                || lpad(to_hex(data_length::bit(64)::bigint),16,'0')
+                || byte_string, :indefinite_items)
+      || 'ff' /* Break Code */
+    ,'hex')
+  ))
   =
   jsonb_agg(repeat(byte_string,:indefinite_items))
 FROM (
