@@ -7,13 +7,13 @@ SELECT
   CASE
     WHEN major_type = 0 AND additional_type <= 27 THEN ROW(substring(cbor,2+length_bytes), pg_catalog.to_jsonb(data_value))::cbor.next_state
     WHEN major_type = 1 AND additional_type <= 27 THEN ROW(substring(cbor,2+length_bytes), pg_catalog.to_jsonb(-1-data_value))::cbor.next_state
-    WHEN major_type = 2 AND additional_type <= 26 THEN ROW(substring(cbor,2+length_bytes+data_value::integer), pg_catalog.to_jsonb(encode(substring(cbor,2+length_bytes,data_value::integer),encode_binary_format)))::cbor.next_state
+    WHEN major_type = 2 AND additional_type <= 27 THEN ROW(substring(cbor,2+length_bytes+data_value::integer), pg_catalog.to_jsonb(encode(substring(cbor,2+length_bytes,data_value::integer),encode_binary_format)))::cbor.next_state
     WHEN major_type = 2 AND additional_type  = 31 THEN cbor.next_indefinite_byte_string(substring(cbor,2), encode_binary_format)
-    WHEN major_type = 3 AND additional_type <= 26 THEN ROW(substring(cbor,2+length_bytes+data_value::integer), pg_catalog.to_jsonb(convert_from(substring(cbor,2+length_bytes,data_value::integer),'utf8')))::cbor.next_state
+    WHEN major_type = 3 AND additional_type <= 27 THEN ROW(substring(cbor,2+length_bytes+data_value::integer), pg_catalog.to_jsonb(convert_from(substring(cbor,2+length_bytes,data_value::integer),'utf8')))::cbor.next_state
     WHEN major_type = 3 AND additional_type  = 31 THEN cbor.next_indefinite_text_string(substring(cbor,2), encode_binary_format)
-    WHEN major_type = 4 AND additional_type <= 26 THEN cbor.next_array(substring(cbor,2+length_bytes), data_value::integer, encode_binary_format)
+    WHEN major_type = 4 AND additional_type <= 27 THEN cbor.next_array(substring(cbor,2+length_bytes), data_value::integer, encode_binary_format)
     WHEN major_type = 4 AND additional_type  = 31 THEN cbor.next_indefinite_array(substring(cbor,2), encode_binary_format)
-    WHEN major_type = 5 AND additional_type <= 26 THEN cbor.next_map(substring(cbor,2+length_bytes), data_value::integer, encode_binary_format)
+    WHEN major_type = 5 AND additional_type <= 27 THEN cbor.next_map(substring(cbor,2+length_bytes), data_value::integer, encode_binary_format)
     WHEN major_type = 5 AND additional_type  = 31 THEN cbor.next_indefinite_map(substring(cbor,2), encode_binary_format)
     WHEN major_type = 6 AND additional_type  = 2  THEN (SELECT ROW(tag_item.remainder, pg_catalog.to_jsonb(cbor.bytea_to_numeric(decode(tag_item.item#>>'{}','hex'))))::cbor.next_state FROM cbor.next_item(substring(cbor,2), encode_binary_format) AS tag_item)
     WHEN major_type = 6 AND additional_type  = 3  THEN (SELECT ROW(tag_item.remainder, pg_catalog.to_jsonb(-1-cbor.bytea_to_numeric(decode(tag_item.item#>>'{}','hex'))))::cbor.next_state FROM cbor.next_item(substring(cbor,2), encode_binary_format) AS tag_item)
