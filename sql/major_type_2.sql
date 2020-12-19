@@ -3,11 +3,11 @@ BEGIN;
 CREATE EXTENSION IF NOT EXISTS cbor;
 
 \set iterations 3
-\set num_indefinite_items 3
+\set indefinite_items 3
 \set max_bytes 100000
 
 --
--- Test random Byte strings of all lengths from 0 to 23 bytes
+-- Byte strings from 0 to 23 bytes
 -- major_type = 2 AND additional_type <= 23
 --
 SELECT
@@ -26,7 +26,7 @@ JOIN LATERAL (VALUES(
 )) AS q2(byte_string) ON TRUE;
 
 --
--- Test random Byte strings of all lengths from 0 to 255 bytes
+-- Byte strings from 0 to 255 bytes
 -- major_type = 2 AND additional_type = 24
 --
 SELECT
@@ -46,7 +46,7 @@ JOIN LATERAL (VALUES(
 )) AS q2(byte_string) ON TRUE;
 
 --
--- Test random Byte strings of some random lengths from 0 to 65535 bytes
+-- Byte strings from 0 to 65535 bytes
 -- major_type = 2 AND additional_type = 25
 --
 SELECT
@@ -66,7 +66,7 @@ JOIN LATERAL (VALUES(
 )) AS q2(byte_string) ON TRUE;
 
 --
--- Test random Byte strings of some random lengths
+-- Byte strings up to :max_bytes bytes
 -- major_type = 2 AND additional_type = 26
 --
 SELECT
@@ -86,7 +86,7 @@ JOIN LATERAL (VALUES(
 )) AS q2(byte_string) ON TRUE;
 
 --
--- Test random Byte strings of some random lengths
+-- Byte strings up to :max_bytes bytes
 -- major_type = 2 AND additional_type = 27
 --
 SELECT
@@ -106,7 +106,7 @@ JOIN LATERAL (VALUES(
 )) AS q2(byte_string) ON TRUE;
 
 --
--- Test Indefinite Byte string of some random length
+-- Indefinite Byte strings up to :max_bytes bytes
 -- major_type = 2 AND additional_type = 31
 --
 SELECT
@@ -114,11 +114,11 @@ SELECT
     lpad(to_hex((2::bit(3) || 31::bit(5))::bit(8)::integer),2,'0')
     || repeat(lpad(to_hex((2::bit(3) || 27::bit(5))::bit(8)::integer),2,'0')
               || lpad(to_hex(data_length::bit(64)::bigint),16,'0')
-              || byte_string, :num_indefinite_items)
+              || byte_string, :indefinite_items)
     || 'ff' /* Break Code */
   ,'hex')))
   =
-  jsonb_agg(repeat(byte_string,:num_indefinite_items))
+  jsonb_agg(repeat(byte_string,:indefinite_items))
 FROM (
   SELECT floor(random()*:max_bytes)::integer AS data_length
   FROM generate_series(1,:iterations)

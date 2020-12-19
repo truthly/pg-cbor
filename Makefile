@@ -5,7 +5,8 @@ REGRESS = rfc7049_appendix_a \
 	multiple_root_level_items \
 	major_type_0 \
 	major_type_1 \
-	major_type_2
+	major_type_2 \
+	major_type_3
 
 EXTRA_CLEAN = cbor--1.0.sql
 
