@@ -1,6 +1,11 @@
 EXTENSION = cbor
 DATA = cbor--1.0.sql
-REGRESS = rfc7049_appendix_a webauthn multiple_root_level_items
+REGRESS = rfc7049_appendix_a \
+	webauthn \
+	multiple_root_level_items \
+	major_type_0 \
+	major_type_1 \
+	major_type_2
 
 EXTRA_CLEAN = cbor--1.0.sql
 
@@ -15,6 +20,7 @@ SQL_SRC = \
 	TYPES/next_state.sql \
 	FUNCTIONS/raise.sql \
 	FUNCTIONS/bytea_to_numeric.sql \
+	FUNCTIONS/numeric_to_bytea.sql \
 	FUNCTIONS/next_float_half.sql \
 	FUNCTIONS/next_float_single.sql \
 	FUNCTIONS/next_float_double.sql \
