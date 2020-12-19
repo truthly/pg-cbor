@@ -18,5 +18,5 @@ WITH RECURSIVE x AS (
   JOIN LATERAL cbor.next_item(map_key.remainder, encode_binary_format) AS map_value ON TRUE
   WHERE x.item_count > 0
 )
-SELECT ROW(x.remainder, x.map) FROM x WHERE x.item_count = 0
+SELECT ROW(x.remainder, x.map)::cbor.next_state FROM x WHERE x.item_count = 0
 $$;

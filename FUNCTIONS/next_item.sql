@@ -27,7 +27,7 @@ SELECT
     WHEN major_type = 7 AND additional_type  = 26 THEN cbor.next_float_single(substring(cbor,2))
     WHEN major_type = 7 AND additional_type  = 27 THEN cbor.next_float_double(substring(cbor,2))
     ELSE cbor.raise('Decoding of CBOR type not implemented',json_build_object('major_type',major_type,'additional_type',additional_type),NULL::cbor.next_state)
-  END
+  END::cbor.next_state
 FROM (VALUES(
   -- major_type:
   (get_byte(cbor,0)>>5)&'111'::bit(3)::integer,

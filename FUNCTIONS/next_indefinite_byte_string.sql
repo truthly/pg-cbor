@@ -21,5 +21,5 @@ WITH RECURSIVE x AS (
   JOIN LATERAL cbor.next_item(x.remainder, encode_binary_format) ON TRUE
   WHERE get_byte(x.remainder,0) <> 255
 )
-SELECT ROW(substring(x.remainder,2), to_jsonb(encode(x.bytes,encode_binary_format))) FROM x ORDER BY i DESC LIMIT 1
+SELECT ROW(substring(x.remainder,2), to_jsonb(encode(x.bytes,encode_binary_format)))::cbor.next_state FROM x ORDER BY i DESC LIMIT 1
 $$;

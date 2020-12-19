@@ -18,5 +18,5 @@ WITH RECURSIVE x AS (
   JOIN LATERAL cbor.next_item(map_key.remainder, encode_binary_format) AS map_value ON TRUE
   WHERE get_byte(x.remainder,0) <> 255
 )
-SELECT ROW(substring(x.remainder,2), x.map) FROM x ORDER BY i DESC LIMIT 1
+SELECT ROW(substring(x.remainder,2), x.map)::cbor.next_state FROM x ORDER BY i DESC LIMIT 1
 $$;

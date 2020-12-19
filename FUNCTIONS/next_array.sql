@@ -17,5 +17,5 @@ WITH RECURSIVE x AS (
   JOIN LATERAL cbor.next_item(x.remainder, encode_binary_format) ON TRUE
   WHERE x.item_count > 0
 )
-SELECT ROW(x.remainder, x.jsonb_array) FROM x WHERE x.item_count = 0
+SELECT ROW(x.remainder, x.jsonb_array)::cbor.next_state FROM x WHERE x.item_count = 0
 $$;
