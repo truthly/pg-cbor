@@ -3,6 +3,8 @@ CREATE OR REPLACE FUNCTION cbor.to_jsonb_array(
   encode_binary_format text DEFAULT 'hex'
 )
 RETURNS jsonb
+STRICT
+IMMUTABLE
 LANGUAGE sql
 AS $$
 WITH RECURSIVE x AS (
@@ -20,5 +22,10 @@ WITH RECURSIVE x AS (
   JOIN LATERAL cbor.next_item(x.remainder, encode_binary_format) ON TRUE
   WHERE length(x.remainder) > 0
 )
-SELECT jsonb_agg(x.item ORDER BY i) FROM x
+SELECT
+  CASE
+    WHEN length(cbor) = 0
+    THEN jsonb_build_array()
+    ELSE (SELECT jsonb_agg(x.item ORDER BY i) FROM x)
+  END
 $$;

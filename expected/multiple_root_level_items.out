@@ -1,7 +1,7 @@
-BEGIN;
 --
 -- Test dealing with multiple root level CBOR items
 --
+BEGIN;
 CREATE EXTENSION IF NOT EXISTS cbor;
 -- A single CBOR item becomes a scalar JSON value
 SELECT cbor.to_jsonb('\x01'::bytea);
@@ -31,6 +31,26 @@ ERROR:  Multiple root level CBOR items. Use to_jsonb_array() instead if this is 
 CONTEXT:  PL/pgSQL function cbor.raise(text,json,anyelement) line 6 at RAISE
 SQL function "to_jsonb" statement 1
 ROLLBACK TO multiple_root_level_cbor_items;
+-- Empty byte array gives empty json array
+SELECT cbor.to_jsonb_array('\x'::bytea);
+ to_jsonb_array 
+----------------
+ []
+(1 row)
+
+-- NULL input returns SQL NULL
+SELECT cbor.to_jsonb_array(NULL::bytea);
+ to_jsonb_array 
+----------------
+ 
+(1 row)
+
+SELECT cbor.to_jsonb(NULL::bytea);
+ to_jsonb 
+----------
+ 
+(1 row)
+
 -- The multiple CBOR items becomes a single JSON array with multiple elements.
 SELECT cbor.to_jsonb_array('\x010203'::bytea);
  to_jsonb_array 

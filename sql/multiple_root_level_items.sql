@@ -1,7 +1,8 @@
-BEGIN;
 --
 -- Test dealing with multiple root level CBOR items
 --
+BEGIN;
+
 CREATE EXTENSION IF NOT EXISTS cbor;
 
 -- A single CBOR item becomes a scalar JSON value
@@ -22,6 +23,13 @@ SELECT cbor.to_jsonb_array('\x01'::bytea);
 SAVEPOINT multiple_root_level_cbor_items;
 SELECT cbor.to_jsonb('\x010203'::bytea);
 ROLLBACK TO multiple_root_level_cbor_items;
+
+-- Empty byte array gives empty json array
+SELECT cbor.to_jsonb_array('\x'::bytea);
+
+-- NULL input returns SQL NULL
+SELECT cbor.to_jsonb_array(NULL::bytea);
+SELECT cbor.to_jsonb(NULL::bytea);
 
 -- The multiple CBOR items becomes a single JSON array with multiple elements.
 SELECT cbor.to_jsonb_array('\x010203'::bytea);

@@ -3,6 +3,8 @@ CREATE OR REPLACE FUNCTION cbor.to_jsonb(
   encode_binary_format text DEFAULT 'hex'
 )
 RETURNS jsonb
+STRICT
+IMMUTABLE
 LANGUAGE sql
 AS $$
 SELECT
