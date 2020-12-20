@@ -39,10 +39,15 @@
 
 `cbor` is a pure SQL [PostgreSQL] extension decoding the The Concise Binary Object Representation ([CBOR]) data format ([RFC 7049]) into [JSON].
 
+This project was created as a spin-off from the [🔐🐘webauthn] project,
+and is now [used by it](https://github.com/truthly/pg-webauthn/blob/master/FUNCTIONS/cose_ecdha_to_pkcs.sql#L9) to decode [WebAuthn] CBOR objects.
+
 [PostgreSQL]: https://www.postgresql.org/
 [CBOR]: https://en.wikipedia.org/wiki/CBOR
 [RFC 7049]: https://tools.ietf.org/html/rfc7049
 [JSON]: https://en.wikipedia.org/wiki/JSON
+[WebAuthn]: https://en.wikipedia.org/wiki/WebAuthn
+[🔐🐘webauthn]: https://github.com/truthly/pg-webauthn
 
 <h2 id="dependencies">2. Dependencies</h2>
 
