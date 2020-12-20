@@ -28,8 +28,8 @@ FROM (
 ) AS q1
 JOIN LATERAL (
   SELECT
-    string_agg(lpad(to_hex(tiny_integer),2,'0'),'' ORDER BY i) AS cbor_hex,
-    jsonb_agg(tiny_integer ORDER BY i) AS expected_result
+    COALESCE(string_agg(lpad(to_hex(tiny_integer),2,'0'),'' ORDER BY i),'') AS cbor_hex,
+    COALESCE(jsonb_agg(tiny_integer ORDER BY i),jsonb_build_array()) AS expected_result
   FROM (
     SELECT
       ROW_NUMBER() OVER () AS i,
@@ -58,8 +58,8 @@ FROM (
 ) AS q1
 JOIN LATERAL (
   SELECT
-    string_agg(lpad(to_hex(tiny_integer),2,'0'),'' ORDER BY i) AS cbor_hex,
-    jsonb_agg(tiny_integer ORDER BY i) AS expected_result
+    COALESCE(string_agg(lpad(to_hex(tiny_integer),2,'0'),'' ORDER BY i),'') AS cbor_hex,
+    COALESCE(jsonb_agg(tiny_integer ORDER BY i),jsonb_build_array()) AS expected_result
   FROM (
     SELECT
       ROW_NUMBER() OVER () AS i,
@@ -88,8 +88,8 @@ FROM (
 ) AS q1
 JOIN LATERAL (
   SELECT
-    string_agg(lpad(to_hex(tiny_integer),2,'0'),'' ORDER BY i) AS cbor_hex,
-    jsonb_agg(tiny_integer ORDER BY i) AS expected_result
+    COALESCE(string_agg(lpad(to_hex(tiny_integer),2,'0'),'' ORDER BY i),'') AS cbor_hex,
+    COALESCE(jsonb_agg(tiny_integer ORDER BY i),jsonb_build_array()) AS expected_result
   FROM (
     SELECT
       ROW_NUMBER() OVER () AS i,
@@ -118,8 +118,8 @@ FROM (
 ) AS q1
 JOIN LATERAL (
   SELECT
-    string_agg(lpad(to_hex(tiny_integer),2,'0'),'' ORDER BY i) AS cbor_hex,
-    jsonb_agg(tiny_integer ORDER BY i) AS expected_result
+    COALESCE(string_agg(lpad(to_hex(tiny_integer),2,'0'),'' ORDER BY i),'') AS cbor_hex,
+    COALESCE(jsonb_agg(tiny_integer ORDER BY i),jsonb_build_array()) AS expected_result
   FROM (
     SELECT
       ROW_NUMBER() OVER () AS i,
@@ -148,8 +148,8 @@ FROM (
 ) AS q1
 JOIN LATERAL (
   SELECT
-    string_agg(lpad(to_hex(tiny_integer),2,'0'),'' ORDER BY i) AS cbor_hex,
-    jsonb_agg(tiny_integer ORDER BY i) AS expected_result
+    COALESCE(string_agg(lpad(to_hex(tiny_integer),2,'0'),'' ORDER BY i),'') AS cbor_hex,
+    COALESCE(jsonb_agg(tiny_integer ORDER BY i),jsonb_build_array()) AS expected_result
   FROM (
     SELECT
       ROW_NUMBER() OVER () AS i,
@@ -178,8 +178,8 @@ FROM (
 ) AS q1
 JOIN LATERAL (
   SELECT
-    string_agg(lpad(to_hex(tiny_integer),2,'0'),'' ORDER BY i) AS cbor_hex,
-    jsonb_agg(tiny_integer ORDER BY i) AS expected_result
+    COALESCE(string_agg(lpad(to_hex(tiny_integer),2,'0'),'' ORDER BY i),'') AS cbor_hex,
+    COALESCE(jsonb_agg(tiny_integer ORDER BY i),jsonb_build_array()) AS expected_result
   FROM (
     SELECT
       ROW_NUMBER() OVER () AS i,
