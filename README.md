@@ -55,7 +55,7 @@ Install the `cbor` extension with:
     $ git clone https://github.com/truthly/pg-cbor.git
     $ cd pg-cbor
     $ make
-    $ make install
+    $ sudo make install
     $ make installcheck
 
 <h2 id="usage">4. Usage</h2>
