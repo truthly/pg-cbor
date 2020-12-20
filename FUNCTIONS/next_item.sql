@@ -4,17 +4,17 @@ IMMUTABLE
 LANGUAGE sql
 AS $$
 WITH
-data_item_header(major_type,additional_type) AS (
+data_item_header(major_type,additional_type) AS MATERIALIZED (
   SELECT
     (get_byte(cbor,0) >> 5) &   '111'::bit(3)::integer,
      get_byte(cbor,0)       & '11111'::bit(5)::integer
 ),
-calc_length_bytes(length_bytes) AS (
+calc_length_bytes(length_bytes) AS MATERIALIZED (
   SELECT
     NULLIF(LEAST(floor(2 ^ (additional_type - 24))::integer,16),16)
   FROM data_item_header
 ),
-calc_data_value(data_value) AS (
+calc_data_value(data_value) AS MATERIALIZED (
   SELECT
     CASE
       WHEN additional_type <= 23 THEN
