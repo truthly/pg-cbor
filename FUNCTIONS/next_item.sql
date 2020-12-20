@@ -3,6 +3,31 @@ RETURNS cbor.next_state
 IMMUTABLE
 LANGUAGE sql
 AS $$
+WITH
+data_item_header(major_type,additional_type) AS (
+  SELECT
+    (get_byte(cbor,0) >> 5) &   '111'::bit(3)::integer,
+     get_byte(cbor,0)       & '11111'::bit(5)::integer
+),
+calc_length_bytes(length_bytes) AS (
+  SELECT
+    NULLIF(LEAST(floor(2 ^ (additional_type - 24))::integer,16),16)
+  FROM data_item_header
+),
+calc_data_value(data_value) AS (
+  SELECT
+    CASE
+      WHEN additional_type <= 23 THEN
+        additional_type::numeric
+      WHEN additional_type BETWEEN 24 AND 27 THEN (
+        SELECT
+          floor(SUM(get_byte(cbor,byte_pos) * 2::numeric^(8*(length_bytes-byte_pos))))
+        FROM calc_length_bytes
+        CROSS JOIN generate_series(1,length_bytes) AS byte_pos
+      )
+    END
+  FROM data_item_header
+)
 SELECT
   CASE
     WHEN major_type = 0 AND additional_type <= 27 THEN ROW(substring(cbor,2+length_bytes), pg_catalog.to_jsonb(data_value))::cbor.next_state
@@ -28,44 +53,7 @@ SELECT
     WHEN major_type = 7 AND additional_type  = 27 THEN cbor.next_float_double(substring(cbor,2))
     ELSE cbor.raise('Decoding of CBOR type not implemented',json_build_object('major_type',major_type,'additional_type',additional_type),NULL::cbor.next_state)
   END::cbor.next_state
-FROM (VALUES(
-  -- major_type:
-  (get_byte(cbor,0)>>5)&'111'::bit(3)::integer,
-  -- additional_type:
-  get_byte(cbor,0)&'11111'::bit(5)::integer
-  )) AS data_item_header(major_type, additional_type)
-JOIN LATERAL (VALUES(
-  CASE WHEN additional_type <= 23 THEN 0
-       WHEN additional_type  = 24 THEN 1
-       WHEN additional_type  = 25 THEN 2
-       WHEN additional_type  = 26 THEN 4
-       WHEN additional_type  = 27 THEN 8
-  END,
-  CASE WHEN additional_type <= 23 THEN
-         additional_type::numeric
-       WHEN additional_type  = 24 THEN
-         -- uint8_t:
-         get_byte(cbor,1)::numeric
-       WHEN additional_type  = 25 THEN
-         -- uint16_t:
-         ((get_byte(cbor,1)<<8) +
-           get_byte(cbor,2))::numeric
-       WHEN additional_type  = 26 THEN
-         -- uint32_t:
-         ((get_byte(cbor,1)::bigint<<24) +
-          (get_byte(cbor,2)::bigint<<16) +
-          (get_byte(cbor,3)::bigint<<8) +
-           get_byte(cbor,4)::bigint)::numeric
-       WHEN additional_type  = 27 THEN
-         -- uint64_t:
-         floor((get_byte(cbor,1)*2::numeric^56) +
-               (get_byte(cbor,2)*2::numeric^48) +
-               (get_byte(cbor,3)*2::numeric^40) +
-               (get_byte(cbor,4)*2::numeric^32) +
-               (get_byte(cbor,5)*2::numeric^24) +
-               (get_byte(cbor,6)*2::numeric^16) +
-               (get_byte(cbor,7)*2::numeric^8) +
-                get_byte(cbor,8)::numeric)
-  END
-)) AS additional_type_meaning(length_bytes, data_value) ON TRUE
+FROM data_item_header
+CROSS JOIN calc_length_bytes
+CROSS JOIN calc_data_value
 $$;
