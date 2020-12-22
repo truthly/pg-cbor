@@ -20,6 +20,60 @@
     1. [cbor.next_float_half()]
     1. [cbor.next_float_single()]
     1. [cbor.next_float_double()]
+1. [Examples](#examples)
+    1. [Positive/Unsigned integer (major type 0)](#positive-unsigned-integer)
+        1. [Additional information 0..23](#positive-unsigned-integer-0-23)
+        1. [Additional information 24](#positive-unsigned-integer-24)
+        1. [Additional information 25](#positive-unsigned-integer-25)
+        1. [Additional information 26](#positive-unsigned-integer-26)
+        1. [Additional information 27](#positive-unsigned-integer-27)
+    1. [Negative integer (major type 1)](#negative-integer)
+        1. [Additional information 0..23](#negative-integer-0-23)
+        1. [Additional information 24](#negative-integer-24)
+        1. [Additional information 25](#negative-integer-25)
+        1. [Additional information 26](#negative-integer-26)
+        1. [Additional information 27](#negative-integer-27)
+    1. [Byte string (major type 2)](#byte-string)
+        1. [Additional information 0..23](#byte-string-0-23)
+        1. [Additional information 24](#byte-string-24)
+        1. [Additional information 25](#byte-string-25)
+        1. [Additional information 26](#byte-string-26)
+        1. [Additional information 27](#byte-string-27)
+        1. [Additional information 31](#byte-string-31)
+    1. [Text string (major type 3)](#text-string)
+        1. [Additional information 0..23](#text-string-0-23)
+        1. [Additional information 24](#text-string-24)
+        1. [Additional information 25](#text-string-25)
+        1. [Additional information 26](#text-string-26)
+        1. [Additional information 27](#text-string-27)
+        1. [Additional information 31](#text-string-31)
+    1. [Array of data items (major type 4)](#array-of-data-items)
+        1. [Additional information 0..23](#array-of-data-items-0-23)
+        1. [Additional information 24](#array-of-data-items-24)
+        1. [Additional information 25](#array-of-data-items-25)
+        1. [Additional information 26](#array-of-data-items-26)
+        1. [Additional information 27](#array-of-data-items-27)
+        1. [Additional information 31](#array-of-data-items-31)
+    1. [Map of pairs of data items (major type 5)](#map-of-pairs-of-data-items)
+        1. [Additional information 0..23](#map-of-pairs-of-data-items-0-23)
+        1. [Additional information 24](#map-of-pairs-of-data-items-24)
+        1. [Additional information 25](#map-of-pairs-of-data-items-25)
+        1. [Additional information 26](#map-of-pairs-of-data-items-26)
+        1. [Additional information 27](#map-of-pairs-of-data-items-27)
+        1. [Additional information 31](#map-of-pairs-of-data-items-31)
+    1. [Semantic tag (major type 6)](#semantic-tag)
+    1. [Primitives (major type 7)](#primitives)
+        1. [False](#false)
+        1. [True](#true)
+        1. [Null](#null)
+        1. [Undefined](#undefined)
+        1. [Simple value](#simple-value)
+        1. [IEEE 754 half-precision float](#half-float)
+        1. [IEEE 754 single-precision float](#single-float)
+        1. [IEEE 754 double-precision float](#double-float)
+        1. [IEEE 754 Infinity float](#float-infinity)
+        1. [IEEE 754 NaN float](#float-nan)
+        1. [Break control code](#break-control-code)
 
 [cbor.to_jsonb()]: #to-jsonb
 [cbor.to_jsonb_array()]: #to-jsonb-array
@@ -48,57 +102,7 @@ The arguably most important feature of CBOR is it's ability to **R**epresent **B
 The CBOR type for binary objects is *Byte string* (*major type 2*). Since JSON doesn't have any binary type, such objects are represented either `hex`, `base64` or `base64url` encoded JSON *text*, controlled via the *encode_binary_format* input parameter.
 
 Binary objects is the only special case which are converted even not being part of JSON.
-If any other CBOR items of types not part of JSON are encountered, an exception will be raised.
-
-Type ([major,additional])                         | CBOR example                                         | JSON example
-------------------------------------------------- | ---------------------------------------------------- | ----------------------------
-Positive integer (0,0..23)                        | `'\x00'`                                             | `0`
-Positive integer (0,24)                           | `'\x182f'`                                           | `47`
-Positive integer (0,25)                           | `'\x197a69'`                                         | `31337`
-Positive integer (0,26)                           | `'\x1a3b9aca00'`                                     | `1000000000`
-Positive integer (0,27)                           | `'\x1b8ac7230489e80000'`                             | `10000000000000000000`
-Negative integer (1,23)                           | `'\x20'`                                             | `-1`
-Negative integer (1,24)                           | `'\x382e'`                                           | `-47`
-Negative integer (1,25)                           | `'\x397a68'`                                         | `-31337`
-Negative integer (1,26)                           | `'\x3a3b9ac9ff'`                                     | `-1000000000`
-Negative integer (1,27)                           | `'\x3b8ac7230489e7ffff'`                             | `-10000000000000000000`
-Byte string (2,0..23)                             | `'\x4cf09fa7acf09f909863626f72'`                     | `"f09fa7acf09f909863626f72"`
-Byte string (2,24)                                | `'\x580cf09fa7acf09f909863626f72'`                   | `"f09fa7acf09f909863626f72"`
-Byte string (2,25)                                | `'\x59000cf09fa7acf09f909863626f72'`                 | `"f09fa7acf09f909863626f72"`
-Byte string (2,26)                                | `'\x5a0000000cf09fa7acf09f909863626f72'`             | `"f09fa7acf09f909863626f72"`
-Byte string (2,27)                                | `'\x5b000000000000000cf09fa7acf09f909863626f72'`     | `"f09fa7acf09f909863626f72"`
-Byte string (2,31)                                | `'\x5f48f09fa7acf09f90984463626f72ff'`               | `"f09fa7acf09f909863626f72"`
-Text string (3,0..23)                             | `'\x6cf09fa7acf09f909863626f72'`                     | `"🧬🐘cbor"`
-Text string (3,24)                                | `'\x780cf09fa7acf09f909863626f72'`                   | `"🧬🐘cbor"`
-Text string (3,25)                                | `'\x79000cf09fa7acf09f909863626f72'`                 | `"🧬🐘cbor"`
-Text string (3,26)                                | `'\x7a0000000cf09fa7acf09f909863626f72'`             | `"🧬🐘cbor"`
-Text string (3,27)                                | `'\x7b000000000000000cf09fa7acf09f909863626f72'`     | `"🧬🐘cbor"`
-Text string (3,31)                                | `'\x7f68f09fa7acf09f90986463626f72ff'`               | `"🧬🐘cbor"`
-Array of data items	(4,0..23)                     | `'\x8268f09fa7acf09f90986463626f72'`                 | `["🧬🐘", "cbor"]`
-Array of data items	(4,24)                        | `'\x980268f09fa7acf09f90986463626f72'`               | `["🧬🐘", "cbor"]`
-Array of data items	(4,25)                        | `'\x99000268f09fa7acf09f90986463626f72'`             | `["🧬🐘", "cbor"]`
-Array of data items	(4,26)                        | `'\x9a0000000268f09fa7acf09f90986463626f72'`         | `["🧬🐘", "cbor"]`
-Array of data items	(4,27)                        | `'\x9b000000000000000268f09fa7acf09f90986463626f72'` | `["🧬🐘", "cbor"]`
-Array of data items	(4,31)                        | `'\x9f68f09fa7acf09f90986463626f72ff'`               | `["🧬🐘", "cbor"]`
-Map of pairs of data items (5,0..23)              | `'\xa168f09fa7acf09f90986463626f72'`                 | `{"🧬🐘": "cbor"}`
-Map of pairs of data items (5,24)                 | `'\xb80168f09fa7acf09f90986463626f72'`               | `{"🧬🐘": "cbor"}`
-Map of pairs of data items (5,25)                 | `'\xb9000168f09fa7acf09f90986463626f72'`             | `{"🧬🐘": "cbor"}`
-Map of pairs of data items (5,26)                 | `'\xba0000000168f09fa7acf09f90986463626f72'`         | `{"🧬🐘": "cbor"}`
-Map of pairs of data items (5,27)                 | `'\xbb000000000000000168f09fa7acf09f90986463626f72'` | `{"🧬🐘": "cbor"}`
-Map of pairs of data items (5,31)                 | `'\xbf68f09fa7acf09f90986463626f72ff'`               | `{"🧬🐘": "cbor"}`
-Semantic tag, Text string, Date/Time string (6,0) | `'\xc074323031332d30332d32315432303a30343a30305a'`   | `"2013-03-21T20:04:00Z"`
-Semantic tag, Byte string, Positive bignum (6,2)  | `'\xc2430a0b0c'`                                     | `658188`
-Semantic tag, Byte string, Negative bignum (6,3)  | `'\xc3430a0b0c'`                                     | `-658189`
-Primitive, False (7,20)                           | `'\xf4'`                                             | `false`
-Primitive, True (7,21)                            | `'\xf5'`                                             | `true`
-Primitive, Null (7,22)                            | `'\xf6'`                                             | `null`
-Primitive, [Undefined] (7,23)                     | `'\xf7'`                                             | ❌ *(Not part of JSON, see [Undefined])*
-Primitive, Simple value (7,24)                    | `'\xf0'`                                             | `16`
-Primitive, IEEE 754 half-precision float (7,25)   | `'\xf93e00'`                                         | `1.5`
-Primitive, IEEE 754 single-precision float (7,26) | `'\xfa47c35000'`                                     | `100000`
-Primitive, IEEE 754 double-precision float (7,27) | `'\xfbc010666666666666'`                             | `-4.1`
-Primitive, IEEE 754 [Infinity] float (7,25..27)   | `'\xf97c00'`                                         | ❌ *(Not part of JSON, see [Infinity])*
-Primitive, IEEE 754 [NaN] float (7,25..27)        | `'\xf97e00'`                                         | ❌ *(Not part of JSON, see [NaN])*
+If any other CBOR items of types not part of JSON are encountered, the default is to raise an exception.
 
 [Undefined]: https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/undefined_value.sql#L1
 [Infinity]: https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/infinity_value.sql#L1
@@ -503,4 +507,642 @@ SELECT * FROM cbor.next_float_double('\xc010666666666666'::bytea);
 -----------+------
  \x        | -4.1
 (1 row)
+```
+
+<h2 id="internal-types">7. Examples</h2>
+
+<h3 id="positive-unsigned-integer">Positive/Unsigned integer (major type 0)</h3>
+
+<h4 id="positive-unsigned-integer-0-23">Additional information 0..23</h3>
+
+Tiny Field Encoding.
+Additional information is the integer itself.
+
+```sql
+SELECT cbor.to_jsonb('\x00');
+ to_jsonb
+----------
+ 0
+(1 row)
+
+SELECT cbor.to_jsonb('\x17');
+ to_jsonb
+----------
+ 23
+(1 row)
+```
+
+<h4 id="positive-unsigned-integer-24">Additional information 24</h3>
+
+Short Field Encoding.
+Next byte is uint8_t in data value section.
+
+```sql
+SELECT cbor.to_jsonb('\x182f');
+ to_jsonb
+----------
+ 47
+(1 row)
+```
+
+<h4 id="positive-unsigned-integer-25">Additional information 25</h3>
+
+Short Field Encoding.
+Next 2 bytes uint16_t in data value section.
+
+```sql
+SELECT cbor.to_jsonb('\x197a69');
+ to_jsonb
+----------
+ 31337
+(1 row)
+```
+
+<h4 id="positive-unsigned-integer-26">Additional information 26</h3>
+
+Short Field Encoding.
+Next 4 bytes is uint32_t in data value section.
+
+```sql
+SELECT cbor.to_jsonb('\x1a3b9aca00');
+  to_jsonb
+------------
+ 1000000000
+(1 row)
+```
+
+<h4 id="positive-unsigned-integer-27">Additional information 27</h3>
+
+Short Field Encoding.
+Next 8 bytes is uint64_t in data value section.
+```sql
+SELECT cbor.to_jsonb('\x1b8ac7230489e80000');
+       to_jsonb
+----------------------
+ 10000000000000000000
+(1 row)
+```
+
+<h3 id="negative-integer">Negative integer (major type 1)</h3>
+
+<h4 id="negative-integer-0-23">Additional information 0..23</h3>
+
+Tiny Field Encoding.
+Additional information - 1 is the integer itself.
+
+```sql
+SELECT cbor.to_jsonb('\x20');
+ to_jsonb
+----------
+ -1
+(1 row)
+
+SELECT cbor.to_jsonb('\x37');
+ to_jsonb
+----------
+ -24
+(1 row)
+```
+
+<h4 id="negative-integer-24">Additional information 24</h3>
+
+Short Field Encoding.
+Next byte - 1 is uint8_t in data value section.
+
+```sql
+SELECT cbor.to_jsonb('\x382e');
+ to_jsonb
+----------
+ -47
+(1 row)
+```
+
+<h4 id="negative-integer-25">Additional information 25</h3>
+
+Short Field Encoding.
+Next 2 bytes - 1 uint16_t in data value section.
+
+```sql
+SELECT cbor.to_jsonb('\x397a68');
+ to_jsonb
+----------
+ -31337
+(1 row)
+```
+
+<h4 id="negative-integer-26">Additional information 26</h3>
+
+Short Field Encoding.
+Next 4 bytes - 1 is uint32_t in data value section.
+
+```sql
+SELECT cbor.to_jsonb('\x3a3b9ac9ff');
+  to_jsonb
+-------------
+ -1000000000
+(1 row)
+```
+
+<h4 id="negative-integer-27">Additional information 27</h3>
+
+Short Field Encoding.
+Next 8 bytes - 1 is uint64_t in data value section.
+
+```sql
+SELECT cbor.to_jsonb('\x3b8ac7230489e7ffff');
+       to_jsonb
+-----------------------
+ -10000000000000000000
+(1 row)
+```
+
+<h3 id="byte-string">Byte string</h3>
+
+In the examples below, the same 12 bytes string `f09fa7acf09f909863626f72`, will be used.
+
+Since the string is the same, the data length specifier will
+also be constant, `12` bytes. It's only the data item header
+that varies, where the additional information indicates
+how many bytes to read for the data length specifier.
+
+<h4 id="byte-string-0-23">Additional information 0..23</h3>
+
+Short Field Encoding.
+The additional information is the data length specifier.
+
+```sql
+SELECT cbor.to_jsonb('\x4cf09fa7acf09f909863626f72');
+          to_jsonb
+----------------------------
+ "f09fa7acf09f909863626f72"
+(1 row)
+```
+
+<h4 id="byte-string-24">Additional information 24</h3>
+
+Long Field Encoding.
+Next byte is uint8_t in data length specifier.
+
+```sql
+SELECT cbor.to_jsonb('\x580cf09fa7acf09f909863626f72');
+          to_jsonb
+----------------------------
+ "f09fa7acf09f909863626f72"
+(1 row)
+```
+
+<h4 id="byte-string-25">Additional information 25</h3>
+
+Short Field Encoding.
+Next 2 bytes uint16_t in data value section.
+
+```sql
+SELECT cbor.to_jsonb('\x59000cf09fa7acf09f909863626f72');
+          to_jsonb
+----------------------------
+ "f09fa7acf09f909863626f72"
+(1 row)
+```
+
+<h4 id="byte-string-26">Additional information 26</h3>
+
+Short Field Encoding.
+Next 4 bytes is uint32_t in data value section.
+
+```sql
+SELECT cbor.to_jsonb('\x5a0000000cf09fa7acf09f909863626f72');
+          to_jsonb
+----------------------------
+ "f09fa7acf09f909863626f72"
+(1 row)
+```
+
+<h4 id="byte-string-27">Additional information 27</h3>
+
+Short Field Encoding.
+Next 8 bytes is uint64_t in data value section.
+
+```sql
+SELECT cbor.to_jsonb('\x5b000000000000000cf09fa7acf09f909863626f72');
+          to_jsonb
+----------------------------
+ "f09fa7acf09f909863626f72"
+(1 row)
+```
+
+<h4 id="byte-string-31">Additional information 31</h3>
+
+Indefinite Byte String.
+
+Concatenation of the two definite-length byte strings `"f09fa7acf09f9098"` and `"63626f72"`.
+
+Ends with a [Break control code], i.e. a `ff` byte.
+
+```sql
+SELECT cbor.to_jsonb('\x5f48f09fa7acf09f90984463626f72ff');
+          to_jsonb
+----------------------------
+ "f09fa7acf09f909863626f72"
+(1 row)
+```
+
+<h3 id="text-string">Text string</h3>
+
+UTF-8 encoded text string of Unicode characters.
+
+In the examples below, the same text string `"🧬🐘cbor"` will be used.
+These 6 Unicode characters occupy `12` bytes when encoded in UTF-8.
+
+Since the string is the same, the data length specifier will
+also be constant, `12` bytes. It's only the data item header
+that varies, where the additional information indicates
+how many bytes to read for the data length specifier.
+
+<h4 id="text-string-0-23">Additional information 0..23</h3>
+
+Short Field Encoding.
+The additional information is the data length specifier.
+
+```sql
+SELECT cbor.to_jsonb('\x6cf09fa7acf09f909863626f72');
+ to_jsonb
+----------
+ "🧬🐘cbor"
+(1 row)
+```
+
+<h4 id="text-string-24">Additional information 24</h3>
+
+Long Field Encoding.
+Next byte is uint8_t in data length specifier.
+
+```sql
+SELECT cbor.to_jsonb('\x780cf09fa7acf09f909863626f72');
+ to_jsonb
+----------
+ "🧬🐘cbor"
+(1 row)
+```
+
+<h4 id="text-string-25">Additional information 25</h3>
+
+Short Field Encoding.
+Next 2 bytes uint16_t in data value section.
+
+```sql
+SELECT cbor.to_jsonb('\x79000cf09fa7acf09f909863626f72');
+ to_jsonb
+----------
+ "🧬🐘cbor"
+(1 row)
+```
+
+<h4 id="text-string-26">Additional information 26</h3>
+
+Short Field Encoding.
+Next 4 bytes is uint32_t in data value section.
+
+```sql
+SELECT cbor.to_jsonb('\x7a0000000cf09fa7acf09f909863626f72');
+ to_jsonb
+----------
+ "🧬🐘cbor"
+(1 row)
+```
+
+<h4 id="text-string-27">Additional information 27</h3>
+
+Short Field Encoding.
+Next 8 bytes is uint64_t in data value section.
+
+```sql
+SELECT cbor.to_jsonb('\x7b000000000000000cf09fa7acf09f909863626f72');
+ to_jsonb
+----------
+ "🧬🐘cbor"
+(1 row)
+```
+
+<h4 id="text-string-31">Additional information 31</h3>
+
+Indefinite Text String.
+
+Concatenation of the two definite-length text strings `"🧬🐘"` and `"cbor"`.
+
+Ends with a [Break control code], i.e. a `ff` byte.
+
+```sql
+SELECT cbor.to_jsonb('\x7f68f09fa7acf09f90986463626f72ff');
+ to_jsonb
+----------
+ "🧬🐘cbor"
+(1 row)
+```
+
+<h3 id="array-of-data-items">Array of data items</h3>
+
+In the examples below, all arrays contain the two text strings `"🧬🐘"` and `"cbor"`.
+The *item count specifier* (the number of data items) is therefore 2 in all array examples.
+It's only the data item header and how the *item count specifier* is encoded that differs.
+
+<h4 id="array-of-data-items-0-23">Additional information 0..23</h3>
+
+Short Field Encoding.
+The additional information is the number of data items in the array.
+
+```sql
+SELECT cbor.to_jsonb('\x8268f09fa7acf09f90986463626f72');
+    to_jsonb
+----------------
+ ["🧬🐘", "cbor"]
+(1 row)
+```
+
+<h4 id="array-of-data-items-24">Additional information 24</h3>
+
+Long Field Encoding.
+Next byte is uint8_t for the number of data items in the array.
+
+```sql
+SELECT cbor.to_jsonb('\x980268f09fa7acf09f90986463626f72');
+    to_jsonb
+----------------
+ ["🧬🐘", "cbor"]
+(1 row)
+```
+
+<h4 id="array-of-data-items-25">Additional information 25</h3>
+
+Short Field Encoding.
+Next 2 bytes uint16_t for the number of data items in the array.
+
+```sql
+SELECT cbor.to_jsonb('\x99000268f09fa7acf09f90986463626f72');
+    to_jsonb
+----------------
+ ["🧬🐘", "cbor"]
+(1 row)
+```
+
+<h4 id="array-of-data-items-26">Additional information 26</h3>
+
+Short Field Encoding.
+Next 4 bytes is uint32_t for the number of data items in the array.
+
+```sql
+SELECT cbor.to_jsonb('\x9a0000000268f09fa7acf09f90986463626f72');
+    to_jsonb
+----------------
+ ["🧬🐘", "cbor"]
+(1 row)
+```
+
+<h4 id="array-of-data-items-27">Additional information 27</h3>
+
+Short Field Encoding.
+Next 8 bytes is uint64_t for the number of data items in the array.
+
+```sql
+SELECT cbor.to_jsonb('\x9b000000000000000268f09fa7acf09f90986463626f72');
+    to_jsonb
+----------------
+ ["🧬🐘", "cbor"]
+(1 row)
+```
+
+<h4 id="array-of-data-items-31">Additional information 31</h3>
+
+Indefinite Array.
+
+Array of the two definite-length text strings `"🧬🐘"` and `"cbor"`.
+
+Ends with a [Break control code], i.e. a `ff` byte.
+
+```sql
+SELECT cbor.to_jsonb('\x9f68f09fa7acf09f90986463626f72ff');
+    to_jsonb
+----------------
+ ["🧬🐘", "cbor"]
+(1 row)
+```
+
+<h3 id="map-of-pairs-of-data-items">Map of pairs of data items</h3>
+
+In the examples below, all maps contain exactly one key `"🧬🐘"` with the value `"cbor"`.
+The *item count specifier* (the number of pairs of data items) is therefore 1 in all map examples.
+It's only the data item header and how the *item count specifier* is encoded that differs.
+
+<h4 id="map-of-pairs-of-data-items-0-23">Additional information 0..23</h3>
+
+Short Field Encoding.
+The additional information is the number of pairs of data items in the map.
+
+```sql
+SELECT cbor.to_jsonb('\xa168f09fa7acf09f90986463626f72');
+    to_jsonb
+----------------
+ {"🧬🐘": "cbor"}
+(1 row)
+```
+
+<h4 id="map-of-pairs-of-data-items-24">Additional information 24</h3>
+
+Long Field Encoding.
+Next byte is uint8_t for the number of pairs of data items in the map.
+
+```sql
+SELECT cbor.to_jsonb('\xb80168f09fa7acf09f90986463626f72');
+    to_jsonb
+----------------
+ {"🧬🐘": "cbor"}
+(1 row)
+```
+
+<h4 id="map-of-pairs-of-data-items-25">Additional information 25</h3>
+
+Short Field Encoding.
+Next 2 bytes uint16_t for the number of pairs of data items in the map.
+
+```sql
+SELECT cbor.to_jsonb('\xb9000168f09fa7acf09f90986463626f72');
+    to_jsonb
+----------------
+ {"🧬🐘": "cbor"}
+(1 row)
+```
+
+<h4 id="map-of-pairs-of-data-items-26">Additional information 26</h3>
+
+Short Field Encoding.
+Next 4 bytes is uint32_t for the number of pairs of data items in the map.
+
+```sql
+SELECT cbor.to_jsonb('\xba0000000168f09fa7acf09f90986463626f72');
+    to_jsonb
+----------------
+ {"🧬🐘": "cbor"}
+(1 row)
+```
+
+<h4 id="map-of-pairs-of-data-items-27">Additional information 27</h3>
+
+Short Field Encoding.
+Next 8 bytes is uint64_t for the number of pairs of data items in the map.
+
+```sql
+SELECT cbor.to_jsonb('\xbb000000000000000168f09fa7acf09f90986463626f72');
+    to_jsonb
+----------------
+ {"🧬🐘": "cbor"}
+(1 row)
+```
+
+<h4 id="map-of-pairs-of-data-items-31">Additional information 31</h3>
+
+Indefinite Map.
+
+Map of the two definite-length text strings `"🧬🐘"` as key and `"cbor"` as value.
+
+Ends with a [Break control code], i.e. a `ff` byte.
+
+```sql
+SELECT cbor.to_jsonb('\xbf68f09fa7acf09f90986463626f72ff');
+    to_jsonb
+----------------
+ {"🧬🐘": "cbor"}
+(1 row)
+```
+<h3 id="semantic-tag">Semantic tag</h3>
+
+```sql
+SELECT cbor.to_jsonb('\xc074323031332d30332d32315432303a30343a30305a');
+        to_jsonb
+------------------------
+ "2013-03-21T20:04:00Z"
+(1 row)
+```
+
+```sql
+SELECT cbor.to_jsonb('\xc2430a0b0c');
+ to_jsonb
+----------
+ 658188
+(1 row)
+```
+
+```sql
+SELECT cbor.to_jsonb('\xc3430a0b0c');
+ to_jsonb
+----------
+ -658189
+(1 row)
+```
+
+<h3 id="primitives">Primitives</h3>
+
+<h4 id="false">False</h4>
+
+```sql
+SELECT cbor.to_jsonb('\xf4');
+ to_jsonb
+----------
+ false
+(1 row)
+```
+
+<h4 id="true">True</h4>
+
+```sql
+SELECT cbor.to_jsonb('\xf5');
+ to_jsonb
+----------
+ true
+(1 row)
+```
+
+<h4 id="null">Null</h4>
+
+```sql
+SELECT cbor.to_jsonb('\xf6');
+ to_jsonb
+----------
+ null
+(1 row)
+```
+
+<h4 id="undefined">Undefined</h4>
+
+❌ Not part of JSON, see [Undefined].
+
+```sql
+SELECT cbor.to_jsonb('\xf7');
+ERROR:  Undefined value has no direct analog in JSON.
+```
+
+<h4 id="simple-value">Simple value</h4>
+
+```sql
+SELECT cbor.to_jsonb('\xf0');
+ to_jsonb
+----------
+ 16
+(1 row)
+```
+
+<h4 id="half-float">IEEE 754 half-precision float</h4>
+
+```sql
+SELECT cbor.to_jsonb('\xf93e00');
+ to_jsonb
+----------
+ 1.5
+(1 row)
+```
+
+<h4 id="single-float">IEEE 754 single-precision float</h4>
+
+```sql
+SELECT cbor.to_jsonb('\xfa47c35000');
+ to_jsonb
+----------
+ 100000
+(1 row)
+```
+
+<h4 id="double-float">IEEE 754 double-precision float</h4>
+
+```sql
+SELECT cbor.to_jsonb('\xfbc010666666666666');
+ to_jsonb
+----------
+ -4.1
+(1 row)
+```
+
+<h4 id="float-infinity">IEEE 754 Infinity float</h4>
+
+❌ Not part of JSON, see [Infinity].
+
+
+```sql
+SELECT cbor.to_jsonb('\xf97c00');
+ERROR:  Infinity value has no direct analog in JSON.
+```
+
+<h4 id="float-nan">IEEE 754 NaN float</h4>
+
+❌ Not part of JSON, see [NaN].
+
+```sql
+SELECT cbor.to_jsonb('\xf97e00');
+ERROR:  NaN value has no direct analog in JSON.
+```
+
+<h4 id="break-control-code">Break control code</h4>
+
+❌ Cannot appear when a CBOR item is expected.
+
+```sql
+SELECT cbor.to_jsonb('\xff');
+ERROR:  "break" stop code appeared where a data item is expected, the enclosing item is not well-formed
 ```
