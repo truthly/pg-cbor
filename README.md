@@ -509,7 +509,7 @@ SELECT * FROM cbor.next_float_double('\xc010666666666666'::bytea);
 (1 row)
 ```
 
-<h2 id="internal-types">7. Examples</h2>
+<h2 id="examples">8. Examples</h2>
 
 <h3 id="positive-unsigned-integer">Positive/Unsigned integer (major type 0)</h3>
 
