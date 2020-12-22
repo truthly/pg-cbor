@@ -736,7 +736,7 @@ Indefinite Byte String.
 
 Concatenation of the two definite-length byte strings `"f09fa7acf09f9098"` and `"63626f72"`.
 
-Ends with a [Break control code], i.e. a `ff` byte.
+Ends with a Break control code, i.e. a `ff` byte.
 
 ```sql
 SELECT cbor.to_jsonb('\x5f48f09fa7acf09f90984463626f72ff');
@@ -829,7 +829,7 @@ Indefinite Text String.
 
 Concatenation of the two definite-length text strings `"🧬🐘"` and `"cbor"`.
 
-Ends with a [Break control code], i.e. a `ff` byte.
+Ends with a Break control code, i.e. a `ff` byte.
 
 ```sql
 SELECT cbor.to_jsonb('\x7f68f09fa7acf09f90986463626f72ff');
@@ -916,7 +916,7 @@ Indefinite Array.
 
 Array of the two definite-length text strings `"🧬🐘"` and `"cbor"`.
 
-Ends with a [Break control code], i.e. a `ff` byte.
+Ends with a Break control code, i.e. a `ff` byte.
 
 ```sql
 SELECT cbor.to_jsonb('\x9f68f09fa7acf09f90986463626f72ff');
@@ -1003,7 +1003,7 @@ Indefinite Map.
 
 Map of the two definite-length text strings `"🧬🐘"` as key and `"cbor"` as value.
 
-Ends with a [Break control code], i.e. a `ff` byte.
+Ends with a Break control code, i.e. a `ff` byte.
 
 ```sql
 SELECT cbor.to_jsonb('\xbf68f09fa7acf09f90986463626f72ff');
