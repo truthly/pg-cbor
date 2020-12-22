@@ -262,7 +262,8 @@ DETAIL:  See: https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/infinity_
 HINT:  Replace cbor.infinity_value() with user-defined function returning a substitue value, e.g. JSON null, if Infinity values are expected and needs to be handled.
 CONTEXT:  PL/pgSQL function cbor.infinity_value(boolean) line 3 at RAISE
 PL/pgSQL function cbor.next_float_half(bytea) line 16 at RETURN
-SQL function "next_item" statement 1
+PL/pgSQL function cbor.major_type_7(bytea,text,integer,integer,numeric) line 10 at RETURN
+PL/pgSQL function cbor.next_item(bytea,text) line 33 at RETURN
 SQL function "to_jsonb" statement 1
 ROLLBACK TO infinity;
 --   |                              |                                    |
@@ -274,7 +275,10 @@ DETAIL:  See: https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/nan_value
 HINT:  Replace cbor.nan_value() with user-defined function returning a substitue value, e.g. JSON null, if NaN values are expected and needs to be handled.
 CONTEXT:  PL/pgSQL function cbor.nan_value() line 3 at RAISE
 PL/pgSQL function cbor.next_float_half(bytea) line 18 at RETURN
-SQL function "next_item" statement 1
+SQL statement "SELECT cbor.next_float_half(substring(cbor,2))"
+PL/pgSQL function cbor.major_type_7(bytea,text,integer,integer,numeric) line 10 at RETURN
+SQL statement "SELECT cbor.major_type_7(cbor,encode_binary_format,additional_type,length_bytes,data_value)"
+PL/pgSQL function cbor.next_item(bytea,text) line 33 at RETURN
 SQL function "to_jsonb" statement 1
 ROLLBACK TO nan;
 --   |                              |                                    |
@@ -287,7 +291,10 @@ HINT:  Replace cbor.infinity_value() with user-defined function returning a subs
 CONTEXT:  PL/pgSQL function cbor.infinity_value(boolean) line 3 at RAISE
 SQL statement "SELECT ROW(substring(cbor,3), cbor.infinity_value(sign))::cbor.next_state"
 PL/pgSQL function cbor.next_float_half(bytea) line 16 at RETURN
-SQL function "next_item" statement 1
+SQL statement "SELECT cbor.next_float_half(substring(cbor,2))"
+PL/pgSQL function cbor.major_type_7(bytea,text,integer,integer,numeric) line 10 at RETURN
+SQL statement "SELECT cbor.major_type_7(cbor,encode_binary_format,additional_type,length_bytes,data_value)"
+PL/pgSQL function cbor.next_item(bytea,text) line 33 at RETURN
 SQL function "to_jsonb" statement 1
 ROLLBACK TO infinity;
 --   |                              |                                    |
@@ -299,7 +306,9 @@ DETAIL:  See: https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/infinity_
 HINT:  Replace cbor.infinity_value() with user-defined function returning a substitue value, e.g. JSON null, if Infinity values are expected and needs to be handled.
 CONTEXT:  PL/pgSQL function cbor.infinity_value(boolean) line 3 at RAISE
 PL/pgSQL function cbor.next_float_single(bytea) line 23 at RETURN
-SQL function "next_item" statement 1
+PL/pgSQL function cbor.major_type_7(bytea,text,integer,integer,numeric) line 12 at RETURN
+SQL statement "SELECT cbor.major_type_7(cbor,encode_binary_format,additional_type,length_bytes,data_value)"
+PL/pgSQL function cbor.next_item(bytea,text) line 33 at RETURN
 SQL function "to_jsonb" statement 1
 ROLLBACK TO infinity;
 --   |                              |                                    |
@@ -311,7 +320,10 @@ DETAIL:  See: https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/nan_value
 HINT:  Replace cbor.nan_value() with user-defined function returning a substitue value, e.g. JSON null, if NaN values are expected and needs to be handled.
 CONTEXT:  PL/pgSQL function cbor.nan_value() line 3 at RAISE
 PL/pgSQL function cbor.next_float_single(bytea) line 25 at RETURN
-SQL function "next_item" statement 1
+SQL statement "SELECT cbor.next_float_single(substring(cbor,2))"
+PL/pgSQL function cbor.major_type_7(bytea,text,integer,integer,numeric) line 12 at RETURN
+SQL statement "SELECT cbor.major_type_7(cbor,encode_binary_format,additional_type,length_bytes,data_value)"
+PL/pgSQL function cbor.next_item(bytea,text) line 33 at RETURN
 SQL function "to_jsonb" statement 1
 ROLLBACK TO nan;
 --   |                              |                                    |
@@ -324,7 +336,10 @@ HINT:  Replace cbor.infinity_value() with user-defined function returning a subs
 CONTEXT:  PL/pgSQL function cbor.infinity_value(boolean) line 3 at RAISE
 SQL statement "SELECT ROW(substring(cbor,5), cbor.infinity_value(sign))::cbor.next_state"
 PL/pgSQL function cbor.next_float_single(bytea) line 23 at RETURN
-SQL function "next_item" statement 1
+SQL statement "SELECT cbor.next_float_single(substring(cbor,2))"
+PL/pgSQL function cbor.major_type_7(bytea,text,integer,integer,numeric) line 12 at RETURN
+SQL statement "SELECT cbor.major_type_7(cbor,encode_binary_format,additional_type,length_bytes,data_value)"
+PL/pgSQL function cbor.next_item(bytea,text) line 33 at RETURN
 SQL function "to_jsonb" statement 1
 ROLLBACK TO infinity;
 --   |                              |                                    |
@@ -336,7 +351,9 @@ DETAIL:  See: https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/infinity_
 HINT:  Replace cbor.infinity_value() with user-defined function returning a substitue value, e.g. JSON null, if Infinity values are expected and needs to be handled.
 CONTEXT:  PL/pgSQL function cbor.infinity_value(boolean) line 3 at RAISE
 PL/pgSQL function cbor.next_float_double(bytea) line 27 at RETURN
-SQL function "next_item" statement 1
+PL/pgSQL function cbor.major_type_7(bytea,text,integer,integer,numeric) line 14 at RETURN
+SQL statement "SELECT cbor.major_type_7(cbor,encode_binary_format,additional_type,length_bytes,data_value)"
+PL/pgSQL function cbor.next_item(bytea,text) line 33 at RETURN
 SQL function "to_jsonb" statement 1
 ROLLBACK TO infinity;
 --   |                              |                                    |
@@ -348,7 +365,10 @@ DETAIL:  See: https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/nan_value
 HINT:  Replace cbor.nan_value() with user-defined function returning a substitue value, e.g. JSON null, if NaN values are expected and needs to be handled.
 CONTEXT:  PL/pgSQL function cbor.nan_value() line 3 at RAISE
 PL/pgSQL function cbor.next_float_double(bytea) line 29 at RETURN
-SQL function "next_item" statement 1
+SQL statement "SELECT cbor.next_float_double(substring(cbor,2))"
+PL/pgSQL function cbor.major_type_7(bytea,text,integer,integer,numeric) line 14 at RETURN
+SQL statement "SELECT cbor.major_type_7(cbor,encode_binary_format,additional_type,length_bytes,data_value)"
+PL/pgSQL function cbor.next_item(bytea,text) line 33 at RETURN
 SQL function "to_jsonb" statement 1
 ROLLBACK TO nan;
 --   |                              |                                    |
@@ -361,7 +381,10 @@ HINT:  Replace cbor.infinity_value() with user-defined function returning a subs
 CONTEXT:  PL/pgSQL function cbor.infinity_value(boolean) line 3 at RAISE
 SQL statement "SELECT ROW(substring(cbor,9), cbor.infinity_value(sign))::cbor.next_state"
 PL/pgSQL function cbor.next_float_double(bytea) line 27 at RETURN
-SQL function "next_item" statement 1
+SQL statement "SELECT cbor.next_float_double(substring(cbor,2))"
+PL/pgSQL function cbor.major_type_7(bytea,text,integer,integer,numeric) line 14 at RETURN
+SQL statement "SELECT cbor.major_type_7(cbor,encode_binary_format,additional_type,length_bytes,data_value)"
+PL/pgSQL function cbor.next_item(bytea,text) line 33 at RETURN
 SQL function "to_jsonb" statement 1
 ROLLBACK TO infinity;
 --   |                              |                                    |
@@ -396,7 +419,9 @@ ERROR:  Undefined value has no direct analog in JSON.
 DETAIL:  See: https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/undefined_value.sql for examples on such user-defined functions.
 HINT:  Replace cbor.undefined_value() with user-defined function returning a substitue value, e.g. JSON null, if Undefined values are expected and needs to be handled.
 CONTEXT:  PL/pgSQL function cbor.undefined_value() line 3 at RAISE
-SQL function "next_item" statement 1
+PL/pgSQL function cbor.major_type_7(bytea,text,integer,integer,numeric) line 16 at RETURN
+SQL statement "SELECT cbor.major_type_7(cbor,encode_binary_format,additional_type,length_bytes,data_value)"
+PL/pgSQL function cbor.next_item(bytea,text) line 33 at RETURN
 SQL function "to_jsonb" statement 1
 ROLLBACK TO undefined;
 --   |                              |                                    |
@@ -411,9 +436,10 @@ SELECT cbor.to_jsonb('\xf0');
 --   | simple(24)                   | 0xf818                             |
 SAVEPOINT incorrect_simple;
 SELECT cbor.to_jsonb('\xf818');
-ERROR:  major type 7, additional information 24, value < 32 (incorrect) {"data_value" : 24}
-CONTEXT:  PL/pgSQL function cbor.raise(text,json,anyelement) line 4 at RAISE
-SQL function "next_item" statement 1
+ERROR:  major type 7, additional information 24, data_value(24) < 32 (incorrect)
+CONTEXT:  PL/pgSQL function cbor.major_type_7(bytea,text,integer,integer,numeric) line 26 at RAISE
+SQL statement "SELECT cbor.major_type_7(cbor,encode_binary_format,additional_type,length_bytes,data_value)"
+PL/pgSQL function cbor.next_item(bytea,text) line 33 at RETURN
 SQL function "to_jsonb" statement 1
 ROLLBACK TO incorrect_simple;
 --   |                              |                                    |

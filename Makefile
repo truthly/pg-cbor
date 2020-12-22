@@ -33,6 +33,14 @@ SQL_SRC = \
 	FUNCTIONS/next_float_half.sql \
 	FUNCTIONS/next_float_single.sql \
 	FUNCTIONS/next_float_double.sql \
+	FUNCTIONS/major_type_0.sql \
+	FUNCTIONS/major_type_1.sql \
+	FUNCTIONS/major_type_2.sql \
+	FUNCTIONS/major_type_3.sql \
+	FUNCTIONS/major_type_4.sql \
+	FUNCTIONS/major_type_5.sql \
+	FUNCTIONS/major_type_6.sql \
+	FUNCTIONS/major_type_7.sql \
 	FUNCTIONS/next_item.sql \
 	FUNCTIONS/next_array.sql \
 	FUNCTIONS/next_map.sql \
