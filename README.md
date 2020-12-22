@@ -656,7 +656,7 @@ SELECT cbor.to_jsonb('\x3b8ac7230489e7ffff');
 (1 row)
 ```
 
-<h3 id="byte-string">Byte string</h3>
+<h3 id="byte-string">Byte string (major type 2)</h3>
 
 In the examples below, the same 12 bytes string `f09fa7acf09f909863626f72`, will be used.
 
@@ -746,7 +746,24 @@ SELECT cbor.to_jsonb('\x5f48f09fa7acf09f90984463626f72ff');
 (1 row)
 ```
 
-<h3 id="text-string">Text string</h3>
+Concatenation of the two definite-length byte strings `"ff00ff"` and `"00ff00"`.
+
+Both byte strings are 3 bytes, hence the data item header will be hex `43`,
+since hex `43` in binary is `01000011` where `010` is the major type (decimal 2),
+and `00011` is the additional type (3) meaning 3 bytes.
+
+Ends with a Break control code, i.e. a `ff` byte.
+
+```sql
+SELECT cbor.to_jsonb('\x5f43ff00ff4300ff00ff');
+          to_jsonb
+----------------------------
+ "ff00ff00ff00"
+(1 row)
+```
+
+
+<h3 id="text-string">Text string (major type 3)</h3>
 
 UTF-8 encoded text string of Unicode characters.
 
@@ -839,7 +856,7 @@ SELECT cbor.to_jsonb('\x7f68f09fa7acf09f90986463626f72ff');
 (1 row)
 ```
 
-<h3 id="array-of-data-items">Array of data items</h3>
+<h3 id="array-of-data-items">Array of data items (major type 4)</h3>
 
 In the examples below, all arrays contain the two text strings `"🧬🐘"` and `"cbor"`.
 The *item count specifier* (the number of data items) is therefore 2 in all array examples.
@@ -926,7 +943,7 @@ SELECT cbor.to_jsonb('\x9f68f09fa7acf09f90986463626f72ff');
 (1 row)
 ```
 
-<h3 id="map-of-pairs-of-data-items">Map of pairs of data items</h3>
+<h3 id="map-of-pairs-of-data-items">Map of pairs of data items (major type 5)</h3>
 
 In the examples below, all maps contain exactly one key `"🧬🐘"` with the value `"cbor"`.
 The *item count specifier* (the number of pairs of data items) is therefore 1 in all map examples.
@@ -1012,7 +1029,7 @@ SELECT cbor.to_jsonb('\xbf68f09fa7acf09f90986463626f72ff');
  {"🧬🐘": "cbor"}
 (1 row)
 ```
-<h3 id="semantic-tag">Semantic tag</h3>
+<h3 id="semantic-tag">Semantic tag (major type 6)</h3>
 
 ```sql
 SELECT cbor.to_jsonb('\xc074323031332d30332d32315432303a30343a30305a');
@@ -1038,7 +1055,7 @@ SELECT cbor.to_jsonb('\xc3430a0b0c');
 (1 row)
 ```
 
-<h3 id="primitives">Primitives</h3>
+<h3 id="primitives">Primitives (major type 7)</h3>
 
 <h4 id="false">False</h4>
 
