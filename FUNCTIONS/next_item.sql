@@ -57,7 +57,7 @@ SELECT
     WHEN major_type = 7 AND additional_type  = 27 THEN cbor.next_float_double(substring(cbor,2))
     WHEN major_type = 7 AND additional_type  > 27
                         AND additional_type  < 31 THEN ROW(substring(cbor,2), cbor.substitute_value(substring(cbor,2), major_type, additional_type))::cbor.next_state
-    WHEN major_type = 7 AND additional_type  = 31 THEN cbor.raise('"break" stop code appeared where a data item is expected -- the enclosing item is not well-formed',NULL,NULL::cbor.next_state)
+    WHEN major_type = 7 AND additional_type  = 31 THEN cbor.raise('"break" stop code appeared where a data item is expected, the enclosing item is not well-formed',NULL,NULL::cbor.next_state)
     WHEN major_type = 7
       AND additional_type = 24
       AND data_value < 32
