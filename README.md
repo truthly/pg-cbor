@@ -42,6 +42,68 @@
 This project was created as a spin-off from the [🔐🐘webauthn] project,
 and is now [used by it](https://github.com/truthly/pg-webauthn/blob/master/FUNCTIONS/cose_ecdha_to_pkcs.sql#L9) to decode [WebAuthn] CBOR objects.
 
+Since CBOR is loosely based on JSON, most CBOR data item types can be unambiguously translated to JSON.
+
+The arguably most important feature of CBOR is it's ability to **R**epresent **B**inary **O**bjects in a **C**oncise way, as indicated by its name.
+The CBOR type for binary objects is *Byte string* (*major type 2*). Since JSON doesn't have any binary type, such objects are represented either `hex`, `base64` or `base64url` encoded JSON *text*, controlled via the *encode_binary_format* input parameter.
+
+Binary objects is the only special case which are converted even not being part of JSON.
+If any other CBOR items of types not part of JSON are encountered, an exception will be raised.
+
+Type ([major,additional])                         | CBOR example                                         | JSON example
+------------------------------------------------- | ---------------------------------------------------- | ----------------------------
+Positive integer (0,0..23)                        | `'\x00'`                                             | `0`
+Positive integer (0,24)                           | `'\x182f'`                                           | `47`
+Positive integer (0,25)                           | `'\x197a69'`                                         | `31337`
+Positive integer (0,26)                           | `'\x1a3b9aca00'`                                     | `1000000000`
+Positive integer (0,27)                           | `'\x1b8ac7230489e80000'`                             | `10000000000000000000`
+Negative integer (1,23)                           | `'\x20'`                                             | `-1`
+Negative integer (1,24)                           | `'\x382e'`                                           | `-47`
+Negative integer (1,25)                           | `'\x397a68'`                                         | `-31337`
+Negative integer (1,26)                           | `'\x3a3b9ac9ff'`                                     | `-1000000000`
+Negative integer (1,27)                           | `'\x3b8ac7230489e7ffff'`                             | `-10000000000000000000`
+Byte string (2,0..23)                             | `'\x4cf09fa7acf09f909863626f72'`                     | `"f09fa7acf09f909863626f72"`
+Byte string (2,24)                                | `'\x580cf09fa7acf09f909863626f72'`                   | `"f09fa7acf09f909863626f72"`
+Byte string (2,25)                                | `'\x59000cf09fa7acf09f909863626f72'`                 | `"f09fa7acf09f909863626f72"`
+Byte string (2,26)                                | `'\x5a0000000cf09fa7acf09f909863626f72'`             | `"f09fa7acf09f909863626f72"`
+Byte string (2,27)                                | `'\x5b000000000000000cf09fa7acf09f909863626f72'`     | `"f09fa7acf09f909863626f72"`
+Byte string (2,31)                                | `'\x5f48f09fa7acf09f90984463626f72ff'`               | `"f09fa7acf09f909863626f72"`
+Text string (3,0..23)                             | `'\x6cf09fa7acf09f909863626f72'`                     | `"🧬🐘cbor"`
+Text string (3,24)                                | `'\x780cf09fa7acf09f909863626f72'`                   | `"🧬🐘cbor"`
+Text string (3,25)                                | `'\x79000cf09fa7acf09f909863626f72'`                 | `"🧬🐘cbor"`
+Text string (3,26)                                | `'\x7a0000000cf09fa7acf09f909863626f72'`             | `"🧬🐘cbor"`
+Text string (3,27)                                | `'\x7b000000000000000cf09fa7acf09f909863626f72'`     | `"🧬🐘cbor"`
+Text string (3,31)                                | `'\x7f68f09fa7acf09f90986463626f72ff'`               | `"🧬🐘cbor"`
+Array of data items	(4,0..23)                     | `'\x8268f09fa7acf09f90986463626f72'`                 | `["🧬🐘", "cbor"]`
+Array of data items	(4,24)                        | `'\x980268f09fa7acf09f90986463626f72'`               | `["🧬🐘", "cbor"]`
+Array of data items	(4,25)                        | `'\x99000268f09fa7acf09f90986463626f72'`             | `["🧬🐘", "cbor"]`
+Array of data items	(4,26)                        | `'\x9a0000000268f09fa7acf09f90986463626f72'`         | `["🧬🐘", "cbor"]`
+Array of data items	(4,27)                        | `'\x9b000000000000000268f09fa7acf09f90986463626f72'` | `["🧬🐘", "cbor"]`
+Array of data items	(4,31)                        | `'\x9f68f09fa7acf09f90986463626f72ff'`               | `["🧬🐘", "cbor"]`
+Map of pairs of data items (5,0..23)              | `'\xa168f09fa7acf09f90986463626f72'`                 | `{"🧬🐘": "cbor"}`
+Map of pairs of data items (5,24)                 | `'\xb80168f09fa7acf09f90986463626f72'`               | `{"🧬🐘": "cbor"}`
+Map of pairs of data items (5,25)                 | `'\xb9000168f09fa7acf09f90986463626f72'`             | `{"🧬🐘": "cbor"}`
+Map of pairs of data items (5,26)                 | `'\xba0000000168f09fa7acf09f90986463626f72'`         | `{"🧬🐘": "cbor"}`
+Map of pairs of data items (5,27)                 | `'\xbb000000000000000168f09fa7acf09f90986463626f72'` | `{"🧬🐘": "cbor"}`
+Map of pairs of data items (5,31)                 | `'\xbf68f09fa7acf09f90986463626f72ff'`               | `{"🧬🐘": "cbor"}`
+Semantic tag, Text string, Date/Time string (6,0) | `'\xc074323031332d30332d32315432303a30343a30305a'`   | `"2013-03-21T20:04:00Z"`
+Semantic tag, Byte string, Positive bignum (6,2)  | `'\xc2430a0b0c'`                                     | `658188`
+Semantic tag, Byte string, Negative bignum (6,3)  | `'\xc3430a0b0c'`                                     | `-658189`
+Primitive, False (7,20)                           | `'\xf4'`                                             | `false`
+Primitive, True (7,21)                            | `'\xf5'`                                             | `true`
+Primitive, Null (7,22)                            | `'\xf6'`                                             | `null`
+Primitive, [Undefined] (7,23)                     | `'\xf7'`                                             | ❌ *(Not part of JSON, see [Undefined])*
+Primitive, Simple value (7,24)                    | `'\xf0'`                                             | `16`
+Primitive, IEEE 754 half-precision float (7,25)   | `'\xf93e00'`                                         | `1.5`
+Primitive, IEEE 754 single-precision float (7,26) | `'\xfa47c35000'`                                     | `100000`
+Primitive, IEEE 754 double-precision float (7,27) | `'\xfbc010666666666666'`                             | `-4.1`
+Primitive, IEEE 754 [Infinity] float (7,25..27)   | `'\xf97c00'`                                         | ❌ *(Not part of JSON, see [Infinity])*
+Primitive, IEEE 754 [NaN] float (7,25..27)        | `'\xf97e00'`                                         | ❌ *(Not part of JSON, see [NaN])*
+
+[Undefined]: https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/undefined_value.sql#L1
+[Infinity]: https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/infinity_value.sql#L1
+[NaN]: https://github.com/truthly/pg-cbor/blob/master/FUNCTIONS/nan_value.sql#L1
+[major,additional]: https://en.wikipedia.org/wiki/CBOR#Major_type_and_additional_type_handling_in_each_data_item
 [PostgreSQL]: https://www.postgresql.org/
 [CBOR]: https://en.wikipedia.org/wiki/CBOR
 [RFC 7049]: https://tools.ietf.org/html/rfc7049
@@ -92,7 +154,7 @@ However, there MUST NOT be multiple CBOR items on the *root level*. If there is,
 **Note:** Since JSON doesn't have any data type for *Byte strings* (CBOR major type 2),
 if there are any such items in the CBOR, they will be represented as text.
 The textual representation for such items can be controlled via the *encode_binary_format* input parameter,
-which can take any value accepted by the built-in `encode()` function, such as `'hex'` and `'base64'`.
+which can take any value accepted by the built-in `encode()` function, such as `'hex'`, `'base64'`, and also `base64url`.
 
 [bytea]: https://www.postgresql.org/docs/current/datatype-binary.html
 
@@ -128,7 +190,7 @@ SELECT jsonb_pretty(cbor.to_jsonb('\xa363666d74667061636b65646761747453746d74a36
 }
 ```
 
-By default, binary strings are encoded as `hex`. If you rather want `base64`, use the *encode_binary_format* parameter:
+By default, binary strings are encoded as `hex`. If you rather want `base64` or `base64url`, use the *encode_binary_format* parameter:
 
 ```sql
 SELECT jsonb_pretty(cbor.to_jsonb(

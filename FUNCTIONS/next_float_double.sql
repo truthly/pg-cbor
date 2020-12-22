@@ -28,9 +28,9 @@ value float8;
 BEGIN
 IF exponent = b'11111111111'::integer THEN
   IF fraction = b'0000000000000000000000000000000000000000000000000000'::bigint THEN
-    RAISE EXCEPTION 'Decoding of INFINITY value not possible since not part of JSON';
+    RETURN ROW(substring(cbor,9), cbor.infinity_value(sign))::cbor.next_state;
   ELSE
-    RAISE EXCEPTION 'Decoding of NAN value not possible since not part of JSON';
+    RETURN ROW(substring(cbor,9), cbor.nan_value())::cbor.next_state;
   END IF;
 END IF;
 value := frac * 2::float8^(exponent-1022);

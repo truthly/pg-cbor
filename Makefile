@@ -22,6 +22,12 @@ SQL_SRC = \
   complain_header.sql \
 	TYPES/next_state.sql \
 	FUNCTIONS/raise.sql \
+	FUNCTIONS/decode.sql \
+	FUNCTIONS/encode.sql \
+	FUNCTIONS/infinity_value.sql \
+	FUNCTIONS/nan_value.sql \
+	FUNCTIONS/undefined_value.sql \
+	FUNCTIONS/substitute_value.sql \
 	FUNCTIONS/bytea_to_numeric.sql \
 	FUNCTIONS/numeric_to_bytea.sql \
 	FUNCTIONS/next_float_half.sql \
@@ -34,6 +40,7 @@ SQL_SRC = \
 	FUNCTIONS/next_indefinite_map.sql \
 	FUNCTIONS/next_indefinite_byte_string.sql \
 	FUNCTIONS/next_indefinite_text_string.sql \
+	FUNCTIONS/next_tag.sql \
   FUNCTIONS/to_jsonb.sql \
   FUNCTIONS/to_jsonb_array.sql \
 	COMMENTS/next_state.sql

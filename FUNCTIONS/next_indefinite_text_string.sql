@@ -15,7 +15,7 @@ WITH RECURSIVE x AS (
     x.text_string || CASE
       WHEN (get_byte(x.remainder,0)>>5)&'111'::bit(3)::integer = 3
       THEN (next_item.item#>>'{}')
-      ELSE cbor.raise('Next CBOR item is not a text string',NULL,NULL::text)
+      ELSE cbor.raise('incorrect substructure of indefinite-length text string (may only contain definite-length strings of the same major type)',NULL,NULL::text)
     END
   FROM x
   JOIN LATERAL cbor.next_item(x.remainder, encode_binary_format) ON TRUE
