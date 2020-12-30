@@ -1,0 +1,29 @@
+BEGIN;
+CREATE EXTENSION IF NOT EXISTS cbor;
+SELECT cbor.to_jsonb('\x4cf09fa7acf09f909863626f72');
+          to_jsonb          
+----------------------------
+ "f09fa7acf09f909863626f72"
+(1 row)
+
+SAVEPOINT too_little_data;
+SELECT cbor.to_jsonb('\x4cf09fa7acf09f909863626f');
+ERROR:  too little data
+CONTEXT:  PL/pgSQL function cbor.major_type_2(bytea,text,integer,integer,numeric) line 5 at RAISE
+PL/pgSQL function cbor.next_item(bytea,text) line 23 at RETURN
+SQL function "to_jsonb" statement 1
+ROLLBACK TO too_little_data;
+SELECT cbor.to_jsonb('\x6cf09fa7acf09f909863626f72');
+ to_jsonb 
+----------
+ "🧬🐘cbor"
+(1 row)
+
+SAVEPOINT too_little_data;
+SELECT cbor.to_jsonb('\x6cf09fa7acf09f909863626f');
+ERROR:  too little data
+CONTEXT:  PL/pgSQL function cbor.major_type_3(bytea,text,integer,integer,numeric) line 5 at RAISE
+PL/pgSQL function cbor.next_item(bytea,text) line 20 at RETURN
+SQL function "to_jsonb" statement 1
+ROLLBACK TO too_little_data;
+ROLLBACK;

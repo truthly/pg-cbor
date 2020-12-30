@@ -11,6 +11,9 @@ LANGUAGE plpgsql
 AS $$
 BEGIN
 IF additional_type <= 27 THEN
+  IF length(cbor) - 1 - length_bytes < data_value THEN
+    RAISE EXCEPTION 'too little data';
+  END IF;
   RETURN ROW(substring(cbor,2+length_bytes+data_value::integer), pg_catalog.to_jsonb(convert_from(substring(cbor,2+length_bytes,data_value::integer),'utf8')));
 ELSIF additional_type = 31 THEN
   RETURN cbor.next_indefinite_text_string(substring(cbor,2), encode_binary_format);

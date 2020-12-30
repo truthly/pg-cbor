@@ -1,5 +1,5 @@
 EXTENSION = cbor
-DATA = cbor--1.0.sql
+DATA = cbor--1.1.sql
 REGRESS = rfc7049_appendix_a \
 	webauthn \
 	multiple_root_level_items \
@@ -8,15 +8,16 @@ REGRESS = rfc7049_appendix_a \
 	major_type_2 \
 	major_type_3 \
 	major_type_4 \
-	major_type_5
+	major_type_5 \
+	too_little_data
 
-EXTRA_CLEAN = cbor--1.0.sql
+EXTRA_CLEAN = cbor--1.1.sql
 
 PG_CONFIG = pg_config
 PGXS := $(shell $(PG_CONFIG) --pgxs)
 include $(PGXS)
 
-all: cbor--1.0.sql
+all: cbor--1.1.sql
 
 SQL_SRC = \
   complain_header.sql \
@@ -53,5 +54,13 @@ SQL_SRC = \
   FUNCTIONS/to_jsonb_array.sql \
 	COMMENTS/next_state.sql
 
-cbor--1.0.sql: $(SQL_SRC)
+cbor--1.1.sql: $(SQL_SRC)
+	cat $^ > $@
+
+SQL_SRC = \
+  complain_header.sql \
+	FUNCTIONS/major_type_2.sql \
+	FUNCTIONS/next_item.sql
+
+cbor--1.0--1.1.sql: $(SQL_SRC)
 	cat $^ > $@

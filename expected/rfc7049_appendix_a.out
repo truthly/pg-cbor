@@ -263,7 +263,7 @@ HINT:  Replace cbor.infinity_value() with user-defined function returning a subs
 CONTEXT:  PL/pgSQL function cbor.infinity_value(boolean) line 3 at RAISE
 PL/pgSQL function cbor.next_float_half(bytea) line 16 at RETURN
 PL/pgSQL function cbor.major_type_7(bytea,text,integer,integer,numeric) line 10 at RETURN
-PL/pgSQL function cbor.next_item(bytea,text) line 33 at RETURN
+PL/pgSQL function cbor.next_item(bytea,text) line 27 at RETURN
 SQL function "to_jsonb" statement 1
 ROLLBACK TO infinity;
 --   |                              |                                    |
@@ -278,7 +278,7 @@ PL/pgSQL function cbor.next_float_half(bytea) line 18 at RETURN
 SQL statement "SELECT cbor.next_float_half(substring(cbor,2))"
 PL/pgSQL function cbor.major_type_7(bytea,text,integer,integer,numeric) line 10 at RETURN
 SQL statement "SELECT cbor.major_type_7(cbor,encode_binary_format,additional_type,length_bytes,data_value)"
-PL/pgSQL function cbor.next_item(bytea,text) line 33 at RETURN
+PL/pgSQL function cbor.next_item(bytea,text) line 27 at RETURN
 SQL function "to_jsonb" statement 1
 ROLLBACK TO nan;
 --   |                              |                                    |
@@ -294,7 +294,7 @@ PL/pgSQL function cbor.next_float_half(bytea) line 16 at RETURN
 SQL statement "SELECT cbor.next_float_half(substring(cbor,2))"
 PL/pgSQL function cbor.major_type_7(bytea,text,integer,integer,numeric) line 10 at RETURN
 SQL statement "SELECT cbor.major_type_7(cbor,encode_binary_format,additional_type,length_bytes,data_value)"
-PL/pgSQL function cbor.next_item(bytea,text) line 33 at RETURN
+PL/pgSQL function cbor.next_item(bytea,text) line 27 at RETURN
 SQL function "to_jsonb" statement 1
 ROLLBACK TO infinity;
 --   |                              |                                    |
@@ -308,7 +308,7 @@ CONTEXT:  PL/pgSQL function cbor.infinity_value(boolean) line 3 at RAISE
 PL/pgSQL function cbor.next_float_single(bytea) line 23 at RETURN
 PL/pgSQL function cbor.major_type_7(bytea,text,integer,integer,numeric) line 12 at RETURN
 SQL statement "SELECT cbor.major_type_7(cbor,encode_binary_format,additional_type,length_bytes,data_value)"
-PL/pgSQL function cbor.next_item(bytea,text) line 33 at RETURN
+PL/pgSQL function cbor.next_item(bytea,text) line 27 at RETURN
 SQL function "to_jsonb" statement 1
 ROLLBACK TO infinity;
 --   |                              |                                    |
@@ -323,7 +323,7 @@ PL/pgSQL function cbor.next_float_single(bytea) line 25 at RETURN
 SQL statement "SELECT cbor.next_float_single(substring(cbor,2))"
 PL/pgSQL function cbor.major_type_7(bytea,text,integer,integer,numeric) line 12 at RETURN
 SQL statement "SELECT cbor.major_type_7(cbor,encode_binary_format,additional_type,length_bytes,data_value)"
-PL/pgSQL function cbor.next_item(bytea,text) line 33 at RETURN
+PL/pgSQL function cbor.next_item(bytea,text) line 27 at RETURN
 SQL function "to_jsonb" statement 1
 ROLLBACK TO nan;
 --   |                              |                                    |
@@ -339,7 +339,7 @@ PL/pgSQL function cbor.next_float_single(bytea) line 23 at RETURN
 SQL statement "SELECT cbor.next_float_single(substring(cbor,2))"
 PL/pgSQL function cbor.major_type_7(bytea,text,integer,integer,numeric) line 12 at RETURN
 SQL statement "SELECT cbor.major_type_7(cbor,encode_binary_format,additional_type,length_bytes,data_value)"
-PL/pgSQL function cbor.next_item(bytea,text) line 33 at RETURN
+PL/pgSQL function cbor.next_item(bytea,text) line 27 at RETURN
 SQL function "to_jsonb" statement 1
 ROLLBACK TO infinity;
 --   |                              |                                    |
@@ -353,7 +353,7 @@ CONTEXT:  PL/pgSQL function cbor.infinity_value(boolean) line 3 at RAISE
 PL/pgSQL function cbor.next_float_double(bytea) line 27 at RETURN
 PL/pgSQL function cbor.major_type_7(bytea,text,integer,integer,numeric) line 14 at RETURN
 SQL statement "SELECT cbor.major_type_7(cbor,encode_binary_format,additional_type,length_bytes,data_value)"
-PL/pgSQL function cbor.next_item(bytea,text) line 33 at RETURN
+PL/pgSQL function cbor.next_item(bytea,text) line 27 at RETURN
 SQL function "to_jsonb" statement 1
 ROLLBACK TO infinity;
 --   |                              |                                    |
@@ -368,7 +368,7 @@ PL/pgSQL function cbor.next_float_double(bytea) line 29 at RETURN
 SQL statement "SELECT cbor.next_float_double(substring(cbor,2))"
 PL/pgSQL function cbor.major_type_7(bytea,text,integer,integer,numeric) line 14 at RETURN
 SQL statement "SELECT cbor.major_type_7(cbor,encode_binary_format,additional_type,length_bytes,data_value)"
-PL/pgSQL function cbor.next_item(bytea,text) line 33 at RETURN
+PL/pgSQL function cbor.next_item(bytea,text) line 27 at RETURN
 SQL function "to_jsonb" statement 1
 ROLLBACK TO nan;
 --   |                              |                                    |
@@ -384,7 +384,7 @@ PL/pgSQL function cbor.next_float_double(bytea) line 27 at RETURN
 SQL statement "SELECT cbor.next_float_double(substring(cbor,2))"
 PL/pgSQL function cbor.major_type_7(bytea,text,integer,integer,numeric) line 14 at RETURN
 SQL statement "SELECT cbor.major_type_7(cbor,encode_binary_format,additional_type,length_bytes,data_value)"
-PL/pgSQL function cbor.next_item(bytea,text) line 33 at RETURN
+PL/pgSQL function cbor.next_item(bytea,text) line 27 at RETURN
 SQL function "to_jsonb" statement 1
 ROLLBACK TO infinity;
 --   |                              |                                    |
@@ -421,7 +421,7 @@ HINT:  Replace cbor.undefined_value() with user-defined function returning a sub
 CONTEXT:  PL/pgSQL function cbor.undefined_value() line 3 at RAISE
 PL/pgSQL function cbor.major_type_7(bytea,text,integer,integer,numeric) line 16 at RETURN
 SQL statement "SELECT cbor.major_type_7(cbor,encode_binary_format,additional_type,length_bytes,data_value)"
-PL/pgSQL function cbor.next_item(bytea,text) line 33 at RETURN
+PL/pgSQL function cbor.next_item(bytea,text) line 27 at RETURN
 SQL function "to_jsonb" statement 1
 ROLLBACK TO undefined;
 --   |                              |                                    |
@@ -439,7 +439,7 @@ SELECT cbor.to_jsonb('\xf818');
 ERROR:  major type 7, additional information 24, data_value(24) < 32 (incorrect)
 CONTEXT:  PL/pgSQL function cbor.major_type_7(bytea,text,integer,integer,numeric) line 26 at RAISE
 SQL statement "SELECT cbor.major_type_7(cbor,encode_binary_format,additional_type,length_bytes,data_value)"
-PL/pgSQL function cbor.next_item(bytea,text) line 33 at RETURN
+PL/pgSQL function cbor.next_item(bytea,text) line 27 at RETURN
 SQL function "to_jsonb" statement 1
 ROLLBACK TO incorrect_simple;
 --   |                              |                                    |

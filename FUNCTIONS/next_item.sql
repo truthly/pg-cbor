@@ -6,18 +6,12 @@ AS $$
 DECLARE
 major_type constant integer := (get_byte(cbor,0) >> 5) & '111'::bit(3)::integer;
 additional_type constant integer :=  get_byte(cbor,0) & '11111'::bit(5)::integer;
-length_bytes constant integer := NULLIF(LEAST(floor(2 ^ (additional_type - 24))::integer,16),16);
+length_bytes constant integer := 8 >> (27 - additional_type);
 data_value numeric := 0;
 BEGIN
 IF additional_type <= 23 THEN
   data_value := additional_type::numeric;
 ELSIF additional_type BETWEEN 24 AND 27 THEN
-/*
-  FOR byte_pos IN 1..length_bytes LOOP
-    data_value := data_value + get_byte(cbor,byte_pos) * 2::numeric^(8*(length_bytes-byte_pos));
-  END LOOP;
-  data_value := floor(data_value);
-*/
   SELECT
     floor(SUM(get_byte(cbor,byte_pos) * 2::numeric^(8*(length_bytes-byte_pos))))
   INTO data_value
