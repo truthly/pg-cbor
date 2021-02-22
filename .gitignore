@@ -1,5 +1,4 @@
 .DS_Store
-cbor--*.sql
 regression.diffs
 regression.out
 results
