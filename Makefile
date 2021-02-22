@@ -1,6 +1,11 @@
 EXTENSION = cbor
-DATA = cbor--1.1.sql
-REGRESS = rfc7049_appendix_a \
+DATA = \
+	cbor--1.0.sql \
+	cbor--1.0--1.1.sql \
+	cbor--1.1.sql
+
+REGRESS = \
+	rfc7049_appendix_a \
 	webauthn \
 	multiple_root_level_items \
 	major_type_0 \
