@@ -14,8 +14,8 @@ PL/pgSQL function cbor.next_item(bytea,text) line 23 at RETURN
 SQL function "to_jsonb" statement 1
 ROLLBACK TO too_little_data;
 SELECT cbor.to_jsonb('\x6cf09fa7acf09f909863626f72');
- to_jsonb 
-----------
+  to_jsonb  
+------------
  "🧬🐘cbor"
 (1 row)
 
